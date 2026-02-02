@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import axios from 'axios';
+import { Spinner, Alert } from 'react-bootstrap';
 
 export default function CustomerList() {
     const [customers, setCustomers] = useState([]);
@@ -22,27 +23,40 @@ export default function CustomerList() {
         fetchCustomers();
     }, []);
 
-    if (loading) return <div>Loading customers...</div>;
-    if (error) return <div>{error}</div>;
+    if (loading) return <div className="text-center mt-5"><Spinner animation="border" /></div>;
+    if (error) return <Alert variant="danger" className="mt-3">{error}</Alert>;
 
     return (
-        <>
-        <div>
-            <div>
-                <h1 className="text-2xl font-bold text-gray-900">Customers</h1>
+        <div className="customer-list-page">
+            <h1 className="customer-list-title">Customers</h1>
+
+            <div className="customer-list-toolbar">
+                <span className="customer-list-count">{customers.length} Customers</span>
+                <Link to="/dashboard/customers/add">
+                    <button className="customer-list-add-btn">+ Add Customer</button>
+                </Link>
             </div>
-            <ul> 
+
+            <div className="customer-list-header">
+                <span>Name</span>
+                <span>Phone</span>
+                <span>Email</span>
+                <span>Customer ID</span>
+            </div>
+
+            <div className="customer-list-rows">
                 {customers.map(customer => (
-                    <li key={customer.id}>
-                       {customer.id} : {customer.first_name} {customer.last_name} - {customer.email} - {customer.phone} 
-                    </li>
+                    <div key={customer.id} className="customer-list-row">
+                        <span className="customer-list-name">
+                            {customer.first_name} {customer.last_name}
+                        </span>
+                        <span className="customer-list-phone">{customer.phone}</span>
+                        <span className="customer-list-email">{customer.email}</span>
+                        <span className="customer-list-id">#{customer.id}</span>
+                    </div>
                 ))}
-            </ul>
+            </div>
         </div>
-        <Link to="/dashboard/customers/add">
-            <button>Add Customer</button>
-        </Link>
-        </>
     );
 }
 
