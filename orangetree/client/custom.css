@@ -1,0 +1,20 @@
+/* Sidebar navigation */
+.sidebar-link {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    color: #cbd5e1; /* slate-300 */
+    text-decoration: none;
+    transition: color 0.15s, background-color 0.15s;
+}
+
+.sidebar-link:hover {
+    color: #ffffff;
+    background-color: #334155; /* slate-700 */
+}
+
+.sidebar-link.active {
+    color: #ffffff;
+    font-weight: 600;
+    background-color: #334155; /* slate-700 */
+}
