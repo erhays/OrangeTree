@@ -1,7 +1,34 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Project-specific
 project.zip
 tailwind.config.js
-orangetree/notes.txt
-orangetree/server/prisma/migrations/20260113225200_init/migration.sql
-orangetree/server/prisma/migrations/migration_lock.toml
-orangetree/server/prisma/schema.prisma
-orangetree/server/prisma.config.ts
+notes.txt
+server/.env
+server/prisma/migrations/
+server/prisma/migration_lock.toml
+server/prisma/schema.prisma
+server/prisma.config.ts
