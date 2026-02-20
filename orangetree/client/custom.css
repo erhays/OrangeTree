@@ -65,7 +65,7 @@
 
 .customer-list-header {
     display: grid;
-    grid-template-columns: 2fr 1.5fr 2fr 1.5fr;
+    grid-template-columns: 2fr 1.5fr 2fr 1.5fr auto;
     padding: 0.75rem 1.25rem;
     font-size: 0.75rem;
     font-weight: 600;
@@ -82,7 +82,7 @@
 
 .customer-list-row {
     display: grid;
-    grid-template-columns: 2fr 1.5fr 2fr 1.5fr;
+    grid-template-columns: 2fr 1.5fr 2fr 1.5fr auto;
     align-items: center;
     background-color: #fff;
     border-radius: 8px;
@@ -109,4 +109,109 @@
 .customer-list-id {
     color: #999;
     font-size: 0.85rem;
+}
+
+.customer-list-delete-btn {
+    background-color: #e53935;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.customer-list-delete-btn:hover {
+    background-color: #b71c1c;
+}
+
+/* Customer detail */
+.customer-detail-page {
+    background-color: #f5f6fa;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.customer-detail-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.customer-detail-back-btn {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    transition: background-color 0.15s ease;
+}
+
+.customer-detail-back-btn:hover {
+    background-color: #e4e6ec;
+}
+
+.customer-detail-edit-btn {
+    background-color: #2bc4ad;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.45rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.customer-detail-edit-btn:hover {
+    background-color: #24b09c;
+}
+
+.customer-detail-card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.customer-detail-name {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #222;
+    margin-bottom: 0.25rem;
+}
+
+.customer-detail-id {
+    color: #aaa;
+    font-size: 0.85rem;
+}
+
+.customer-detail-fields {
+    margin-top: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.customer-detail-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.customer-detail-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.customer-detail-value {
+    font-size: 1rem;
+    color: #333;
 }

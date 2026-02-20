@@ -3,11 +3,15 @@ import express from 'express';
 import cors from 'cors';
 import pkg from 'pg';
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { existsSync } from 'fs';
 
 dotenv.config();
 
 const { Pool } = pkg;
 const app = express();
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 app.use(cors());           
 app.use(express.json());
@@ -80,6 +84,71 @@ app.post('/api/customers', async (req, res) => {
     });
   }
 });
+
+// Get single customer API endpoint
+app.get('/api/customers/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            'SELECT id, first_name, last_name, email, phone FROM customer WHERE id = $1',
+            [id]
+        );
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Not Found', message: 'Customer not found.' });
+        }
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error fetching customer:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+// Update customer API endpoint
+app.put('/api/customers/:id', async (req, res) => {
+    const { id } = req.params;
+    const { firstName, lastName, email, phone } = req.body;
+    if (!firstName || !lastName || !email) {
+        return res.status(400).json({ error: 'Bad Request', message: 'First name, last name, and email are required.' });
+    }
+    try {
+        const result = await pool.query(
+            `UPDATE customer SET first_name = $1, last_name = $2, email = $3, phone = $4
+             WHERE id = $5 RETURNING id, first_name, last_name, email, phone`,
+            [firstName.trim(), lastName.trim(), email.trim(), phone?.trim() || null, id]
+        );
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Not Found', message: 'Customer not found.' });
+        }
+        res.json({ success: true, customer: result.rows[0] });
+    } catch (error) {
+        console.error('Error updating customer:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+// Delete customer API endpoint
+app.delete('/api/customers/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query('DELETE FROM customer WHERE id = $1 RETURNING id', [id]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Not Found', message: 'Customer not found.' });
+        }
+        res.json({ success: true, message: 'Customer deleted.' });
+    } catch (error) {
+        console.error('Error deleting customer:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+// Serve built React app in production (Docker)
+const publicPath = join(__dirname, 'public');
+if (existsSync(publicPath)) {
+    app.use(express.static(publicPath));
+    app.get(/^(?!\/api).*/, (req, res) => {
+        res.sendFile(join(publicPath, 'index.html'));
+    });
+}
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

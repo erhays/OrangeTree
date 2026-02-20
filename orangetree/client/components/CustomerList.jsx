@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import axios from 'axios';
 import { Spinner, Alert } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 
 export default function CustomerList() {
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCustomers = async () => {
@@ -22,6 +24,17 @@ export default function CustomerList() {
 
         fetchCustomers();
     }, []);
+
+    const handleDelete = async (id, name) => {
+        try {
+            await axios.delete(`http://localhost:5000/api/customers/${id}`);
+            setCustomers(prev => prev.filter(c => c.id !== id));
+            toast.success(`${name} deleted.`);
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to delete customer.');
+        }
+    };
 
     if (loading) return <div className="text-center mt-5"><Spinner animation="border" /></div>;
     if (error) return <Alert variant="danger" className="mt-3">{error}</Alert>;
@@ -42,17 +55,24 @@ export default function CustomerList() {
                 <span>Phone</span>
                 <span>Email</span>
                 <span>Customer ID</span>
+                <span></span>
             </div>
 
             <div className="customer-list-rows">
                 {customers.map(customer => (
-                    <div key={customer.id} className="customer-list-row">
+                    <div key={customer.id} className="customer-list-row" onClick={() => navigate(`/dashboard/customers/${customer.id}`)}>
                         <span className="customer-list-name">
                             {customer.first_name} {customer.last_name}
                         </span>
                         <span className="customer-list-phone">{customer.phone}</span>
                         <span className="customer-list-email">{customer.email}</span>
                         <span className="customer-list-id">#{customer.id}</span>
+                        <button
+                            className="customer-list-delete-btn"
+                            onClick={(e) => { e.stopPropagation(); handleDelete(customer.id, `${customer.first_name} ${customer.last_name}`); }}
+                        >
+                            Delete
+                        </button>
                     </div>
                 ))}
             </div>

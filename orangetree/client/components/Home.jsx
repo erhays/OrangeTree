@@ -1,6 +1,9 @@
 function Home() {
     return (
-        <h1>Welcome!</h1>
+        <>
+            <h1>Home Page</h1>
+            <h2>Welcome to OrangeTree Detailing!</h2>
+        </>
     );  
 }
 
