@@ -7,6 +7,7 @@ import CustomerDetail from './components/CustomerDetail'
 import EditCustomer from './components/EditCustomer'
 import Appointments from './components/Appointments'
 import AddAppointment from './components/AddAppointment'
+import BookAppointment from './components/BookAppointment'
 import Insights from './components/Insights'
 import ContentPage from './components/ContentPage'
 import Settings from './components/Settings'
@@ -23,6 +24,7 @@ function App() {
     <main className="page-content">
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/book" element={<BookAppointment />} />
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<Navigate to="customers" replace />} />
           <Route path="customers" element={<CustomerList />} />

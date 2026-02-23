@@ -1,14 +1,23 @@
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { hydrateRoot, createRoot } from 'react-dom/client'
 import { BrowserRouter }  from 'react-router'
 import './index.css'
 import './custom.css'
 import App from './App.jsx'
 
-createRoot(document.getElementById('root')).render(
+const rootEl = document.getElementById('root');
+
+const appTree = (
   <StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </StrictMode>,
-)
+  </StrictMode>
+);
+
+// Hydrate pre-rendered HTML if present (home page), otherwise plain mount
+if (rootEl.hasChildNodes()) {
+  hydrateRoot(rootEl, appTree);
+} else {
+  createRoot(rootEl).render(appTree);
+}

@@ -211,6 +211,55 @@ app.delete('/api/appointments/:id', async (req, res) => {
     }
 });
 
+// Submit contact inquiry (public)
+app.post('/api/contact', async (req, res) => {
+    const { name, email, message } = req.body;
+    if (!name || !email || !message) {
+        return res.status(400).json({ error: 'Bad Request', message: 'Name, email, and message are required.' });
+    }
+    try {
+        await pool.query(
+            'INSERT INTO contact_inquiry (name, email, message) VALUES ($1, $2, $3)',
+            [name.trim(), email.trim(), message.trim()]
+        );
+        res.status(201).json({ success: true });
+    } catch (error) {
+        console.error('Error saving contact inquiry:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+// Public booking endpoint — creates customer if needed, then creates appointment
+app.post('/api/bookings', async (req, res) => {
+    const { firstName, lastName, email, phone, serviceType, dateTime, notes } = req.body;
+    if (!firstName || !lastName || !email || !serviceType || !dateTime) {
+        return res.status(400).json({ error: 'Bad Request', message: 'First name, last name, email, service type, and date/time are required.' });
+    }
+    try {
+        // Find or create customer by email
+        let customerResult = await pool.query('SELECT id FROM customer WHERE email = $1', [email.trim()]);
+        let customerId;
+        if (customerResult.rowCount > 0) {
+            customerId = customerResult.rows[0].id;
+        } else {
+            const insertResult = await pool.query(
+                'INSERT INTO customer (first_name, last_name, email, phone) VALUES ($1, $2, $3, $4) RETURNING id',
+                [firstName.trim(), lastName.trim(), email.trim(), phone?.trim() || null]
+            );
+            customerId = insertResult.rows[0].id;
+        }
+        // Create appointment
+        const apptResult = await pool.query(
+            'INSERT INTO appointment (customer_id, date_time, service_type, status, notes) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+            [customerId, dateTime, serviceType, 'Scheduled', notes?.trim() || null]
+        );
+        res.status(201).json({ success: true, id: apptResult.rows[0].id });
+    } catch (error) {
+        console.error('Error creating booking:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
 // Serve built React app in production (Docker)
 const publicPath = join(__dirname, 'public');
 if (existsSync(publicPath)) {
