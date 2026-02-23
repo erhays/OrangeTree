@@ -13,7 +13,7 @@ export default function CustomerDetail() {
     useEffect(() => {
         const fetchCustomer = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/customers/${id}`);
+                const response = await axios.get(`/api/customers/${id}`);
                 setCustomer(response.data);
             } catch (err) {
                 setError('Customer not found.');

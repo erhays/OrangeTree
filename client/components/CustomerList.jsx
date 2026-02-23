@@ -13,7 +13,7 @@ export default function CustomerList() {
     useEffect(() => {
         const fetchCustomers = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/customers');
+                const response = await axios.get('/api/customers');
                 setCustomers(response.data);
             } catch (err) {
                 setError('Error fetching customers');
@@ -27,7 +27,7 @@ export default function CustomerList() {
 
     const handleDelete = async (id, name) => {
         try {
-            await axios.delete(`http://localhost:5000/api/customers/${id}`);
+            await axios.delete(`/api/customers/${id}`);
             setCustomers(prev => prev.filter(c => c.id !== id));
             toast.success(`${name} deleted.`);
         } catch (err) {

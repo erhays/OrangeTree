@@ -15,7 +15,7 @@ export default function EditCustomer() {
     useEffect(() => {
         const fetchCustomer = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/customers/${id}`);
+                const response = await axios.get(`/api/customers/${id}`);
                 const c = response.data;
                 setCustomer({
                     firstName: c.first_name,
@@ -42,7 +42,7 @@ export default function EditCustomer() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            await axios.put(`http://localhost:5000/api/customers/${id}`, customer);
+            await axios.put(`/api/customers/${id}`, customer);
             toast.success('Customer updated.');
             navigate(`/dashboard/customers/${id}`);
         } catch (err) {
