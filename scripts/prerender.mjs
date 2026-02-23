@@ -8,14 +8,14 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import { StaticRouter } from 'react-router/server';
+import { MemoryRouter } from 'react-router';
 import App from '../client/App.jsx';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const distPath = join(__dirname, '..', 'dist', 'index.html');
 
 const html = renderToString(
-    React.createElement(StaticRouter, { location: '/' },
+    React.createElement(MemoryRouter, { initialEntries: ['/'] },
         React.createElement(App)
     )
 );
