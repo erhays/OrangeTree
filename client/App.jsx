@@ -6,6 +6,7 @@ import AddCustomer from './components/AddCustomer'
 import CustomerDetail from './components/CustomerDetail'
 import EditCustomer from './components/EditCustomer'
 import Appointments from './components/Appointments'
+import AddAppointment from './components/AddAppointment'
 import Insights from './components/Insights'
 import ContentPage from './components/ContentPage'
 import Settings from './components/Settings'
@@ -29,6 +30,7 @@ function App() {
           <Route path="customers/:id" element={<CustomerDetail />} />
           <Route path="customers/:id/edit" element={<EditCustomer />} />
           <Route path="appointments" element={<Appointments />} />
+          <Route path="appointments/add" element={<AddAppointment />} />
           <Route path="insights" element={<Insights />} />
           <Route path="content" element={<ContentPage />} />
           <Route path="settings" element={<Settings />} />

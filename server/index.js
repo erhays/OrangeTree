@@ -141,6 +141,58 @@ app.delete('/api/customers/:id', async (req, res) => {
     }
 });
 
+// Get all appointments API endpoint
+app.get('/api/appointments', async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT a.id, a.date_time, a.service_type, a.status, a.notes, a.created_at,
+                   c.id AS customer_id, c.first_name, c.last_name
+            FROM appointment a
+            JOIN customer c ON c.id = a.customer_id
+            ORDER BY a.date_time DESC
+        `);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching appointments:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+// Create appointment API endpoint
+app.post('/api/appointments', async (req, res) => {
+    const { customerId, dateTime, serviceType, status, notes } = req.body;
+    if (!customerId || !dateTime || !serviceType || !status) {
+        return res.status(400).json({ error: 'Bad Request', message: 'Customer, date/time, service type, and status are required.' });
+    }
+    try {
+        const result = await pool.query(
+            `INSERT INTO appointment (customer_id, date_time, service_type, status, notes)
+             VALUES ($1, $2, $3, $4, $5)
+             RETURNING id`,
+            [customerId, dateTime, serviceType, status, notes?.trim() || null]
+        );
+        res.status(201).json({ success: true, id: result.rows[0].id });
+    } catch (error) {
+        console.error('Error creating appointment:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+// Delete appointment API endpoint
+app.delete('/api/appointments/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query('DELETE FROM appointment WHERE id = $1 RETURNING id', [id]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Not Found', message: 'Appointment not found.' });
+        }
+        res.json({ success: true, message: 'Appointment deleted.' });
+    } catch (error) {
+        console.error('Error deleting appointment:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
 // Serve built React app in production (Docker)
 const publicPath = join(__dirname, 'public');
 if (existsSync(publicPath)) {

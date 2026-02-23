@@ -5,3 +5,13 @@ CREATE TABLE IF NOT EXISTS customer (
     email      TEXT NOT NULL UNIQUE,
     phone      TEXT
 );
+
+CREATE TABLE IF NOT EXISTS appointment (
+    id           SERIAL PRIMARY KEY,
+    customer_id  INTEGER NOT NULL REFERENCES customer(id) ON DELETE CASCADE,
+    date_time    TIMESTAMP NOT NULL,
+    service_type TEXT NOT NULL,
+    status       TEXT NOT NULL DEFAULT 'Scheduled',
+    notes        TEXT,
+    created_at   TIMESTAMP DEFAULT NOW()
+);
