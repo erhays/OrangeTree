@@ -1,27 +1,31 @@
 services:
-  orangetree:
-    build: .
-    ports:
-      - "5000:5000"
-    env_file:
-      - ./server/.env
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  postgres:
+  db:
     image: postgres:16-alpine
     restart: unless-stopped
-    env_file:
-      - ./server/.env
+    environment:
+      POSTGRES_DB: orangetree
+      POSTGRES_USER: orangetree
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - ./server/init.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    ports:
+      - "5433:5432"
+
+  orangetree:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "5000:5000"
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: orangetree
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: orangetree
+      PORT: 5000
 
   adminer:
     image: adminer
@@ -29,7 +33,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
+      - db
 
 volumes:
   postgres_data:
