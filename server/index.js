@@ -141,6 +141,24 @@ app.delete('/api/customers/:id', async (req, res) => {
     }
 });
 
+// Get appointments for a specific customer
+app.get('/api/customers/:id/appointments', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            `SELECT id, date_time, service_type, status, notes
+             FROM appointment
+             WHERE customer_id = $1
+             ORDER BY date_time DESC`,
+            [id]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching customer appointments:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
 // Get all appointments API endpoint
 app.get('/api/appointments', async (req, res) => {
     try {

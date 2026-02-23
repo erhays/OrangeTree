@@ -3,18 +3,37 @@ import { useParams, useNavigate } from 'react-router';
 import { Spinner, Alert } from 'react-bootstrap';
 import axios from 'axios';
 
+const STATUS_COLORS = {
+    'Scheduled': '#2563eb',
+    'Completed': '#16a34a',
+    'Cancelled': '#9ca3af',
+    'No Show': '#ea580c',
+};
+
+function formatDateTime(dt) {
+    return new Date(dt).toLocaleString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric',
+        hour: 'numeric', minute: '2-digit'
+    });
+}
+
 export default function CustomerDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [customer, setCustomer] = useState(null);
+    const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchCustomer = async () => {
+        const fetchData = async () => {
             try {
-                const response = await axios.get(`/api/customers/${id}`);
-                setCustomer(response.data);
+                const [customerRes, apptRes] = await Promise.all([
+                    axios.get(`/api/customers/${id}`),
+                    axios.get(`/api/customers/${id}/appointments`)
+                ]);
+                setCustomer(customerRes.data);
+                setAppointments(apptRes.data);
             } catch (err) {
                 setError('Customer not found.');
                 console.error(err);
@@ -22,7 +41,7 @@ export default function CustomerDetail() {
                 setLoading(false);
             }
         };
-        fetchCustomer();
+        fetchData();
     }, [id]);
 
     if (loading) return <div className="text-center mt-5"><Spinner animation="border" /></div>;
@@ -55,6 +74,41 @@ export default function CustomerDetail() {
                         <span className="customer-detail-value">{customer.phone || '—'}</span>
                     </div>
                 </div>
+            </div>
+
+            <div className="customer-appt-history">
+                <h3 className="customer-appt-history-title">Appointment History</h3>
+                {appointments.length === 0 ? (
+                    <p className="customer-appt-history-empty">No appointments on record.</p>
+                ) : (
+                    <table className="customer-appt-table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Service</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {appointments.map(appt => (
+                                <tr key={appt.id}>
+                                    <td>{formatDateTime(appt.date_time)}</td>
+                                    <td>{appt.service_type}</td>
+                                    <td>
+                                        <span
+                                            className="appt-status-badge"
+                                            style={{ backgroundColor: STATUS_COLORS[appt.status] || '#9ca3af' }}
+                                        >
+                                            {appt.status}
+                                        </span>
+                                    </td>
+                                    <td className="customer-appt-notes">{appt.notes || '—'}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
     );
