@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Spinner, Alert } from 'react-bootstrap';
-import { toast } from 'react-toastify';
 import axios from 'axios';
 
 const PAGE_SIZE = 12;
@@ -13,18 +12,22 @@ const STATUS_COLORS = {
     'No Show':   '#ea580c',
 };
 
-function formatDateTime(dt) {
-    return new Date(dt).toLocaleString('en-US', {
-        month: 'short', day: 'numeric', year: 'numeric',
-        hour: 'numeric', minute: '2-digit'
-    });
+function formatDate(dt) {
+    return new Date(dt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
+
+function formatTime(dt) {
+    return new Date(dt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+const STATUSES = ['All', 'Scheduled', 'Completed', 'Cancelled', 'No Show'];
 
 export default function Appointments() {
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
+    const [statusFilter, setStatusFilter] = useState('All');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -42,32 +45,31 @@ export default function Appointments() {
         fetchAppointments();
     }, []);
 
-    const handleDelete = async (id) => {
-        try {
-            await axios.delete(`/api/appointments/${id}`);
-            setAppointments(prev => prev.filter(a => a.id !== id));
-            toast.success('Appointment deleted.');
-        } catch (err) {
-            console.error(err);
-            toast.error('Failed to delete appointment.');
-        }
-    };
-
     if (loading) return <div className="text-center mt-5"><Spinner animation="border" /></div>;
     if (error) return <Alert variant="danger" className="mt-3">{error}</Alert>;
 
-    const totalPages = Math.max(1, Math.ceil(appointments.length / PAGE_SIZE));
-    const paginated = appointments.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+    const filtered = statusFilter === 'All' ? appointments : appointments.filter(a => a.status === statusFilter);
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     return (
         <div className="appt-page">
             <h1 className="customer-list-title">Appointments</h1>
 
             <div className="customer-list-toolbar">
-                <span className="customer-list-count">{appointments.length} Appointments</span>
-                <button className="customer-list-add-btn" onClick={() => navigate('/dashboard/appointments/add')}>
-                    + Book Appointment
-                </button>
+                <span className="customer-list-count">{filtered.length} Appointments</span>
+                <div className="appt-toolbar-right">
+                    <select
+                        className="appt-filter-select"
+                        value={statusFilter}
+                        onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
+                    >
+                        {STATUSES.map(s => <option key={s}>{s}</option>)}
+                    </select>
+                    <button className="customer-list-add-btn" onClick={() => navigate('/dashboard/appointments/add')}>
+                        + Book Appointment
+                    </button>
+                </div>
             </div>
 
             {appointments.length === 0 ? (
@@ -76,7 +78,7 @@ export default function Appointments() {
                 <>
                     <div className="appt-grid">
                         {paginated.map(appt => (
-                            <div key={appt.id} className="appt-card">
+                            <div key={appt.id} className="appt-card" onClick={() => navigate(`/dashboard/appointments/${appt.id}`)}>
                                 <div className="appt-card-header">
                                     <span className="appt-customer-name">
                                         {appt.first_name} {appt.last_name}
@@ -88,9 +90,9 @@ export default function Appointments() {
                                         {appt.status}
                                     </span>
                                 </div>
-                                <div className="appt-card-field">
-                                    <span className="appt-card-label">Date & Time</span>
-                                    <span className="appt-card-value">{formatDateTime(appt.date_time)}</span>
+                                <div className="appt-card-datetime">
+                                    <span className="appt-card-date">{formatDate(appt.date_time)}</span>
+                                    <span className="appt-card-time">{formatTime(appt.date_time)}</span>
                                 </div>
                                 <div className="appt-card-field">
                                     <span className="appt-card-label">Service</span>
@@ -102,12 +104,7 @@ export default function Appointments() {
                                         <span className="appt-card-value appt-notes">{appt.notes}</span>
                                     </div>
                                 )}
-                                <button
-                                    className="customer-list-delete-btn appt-delete-btn"
-                                    onClick={() => handleDelete(appt.id)}
-                                >
-                                    Delete
-                                </button>
+
                             </div>
                         ))}
                     </div>

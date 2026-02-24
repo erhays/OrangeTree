@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import heroBg from '../assets/hero-image.jpg';
 
 const SERVICES = [
     {
@@ -47,7 +48,7 @@ export default function Home() {
     return (
         <div className="home-page">
             {/* Hero */}
-            <section className="home-hero">
+            <section className="home-hero" style={{ backgroundImage: `url(${heroBg})` }}>
                 <h1 className="home-hero-title">Professional Auto Detailing</h1>
                 <p className="home-hero-sub">
                     We bring the shine back to your vehicle — inside and out.

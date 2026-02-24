@@ -41,7 +41,7 @@ pool.connect((err) => {
 // Get all customers API endpoint
 app.get('/api/customers', async (req, res) => {
     try {
-        const result = await pool.query('SELECT id, first_name, last_name, email, phone FROM customer ORDER BY id ASC');
+        const result = await pool.query('SELECT id, first_name, last_name, email, phone, created_at FROM customer ORDER BY id ASC');
 
         res.json(result.rows); 
     } catch (error) {
@@ -172,6 +172,28 @@ app.get('/api/appointments', async (req, res) => {
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching appointments:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+// Get single appointment API endpoint
+app.get('/api/appointments/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            `SELECT a.id, a.date_time, a.service_type, a.status, a.notes, a.created_at,
+                    c.id AS customer_id, c.first_name, c.last_name, c.email, c.phone
+             FROM appointment a
+             JOIN customer c ON c.id = a.customer_id
+             WHERE a.id = $1`,
+            [id]
+        );
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Not Found', message: 'Appointment not found.' });
+        }
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error fetching appointment:', error);
         res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
 });

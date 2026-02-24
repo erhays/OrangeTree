@@ -10,8 +10,8 @@ const links = [
 
 function Sidebar() {
     return (
-        <aside className="w-56 min-h-screen bg-slate-800 px-4 py-6">
-            <nav className="flex flex-col space-y-1">
+        <aside className="bg-slate-800 md:w-56 md:min-h-screen md:px-4 md:py-6 w-full px-3 py-2">
+            <nav className="flex flex-wrap justify-center gap-1 md:flex-col md:flex-nowrap md:justify-start md:gap-0 md:space-y-1">
                 {links.map(({ to, label }) => (
                     <NavLink
                         key={to}

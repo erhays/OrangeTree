@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS customer (
     first_name TEXT NOT NULL,
     last_name  TEXT NOT NULL,
     email      TEXT NOT NULL UNIQUE,
-    phone      TEXT
+    phone      TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS appointment (

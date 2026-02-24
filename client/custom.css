@@ -40,6 +40,27 @@
     margin-bottom: 1.25rem;
 }
 
+.appt-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.appt-filter-select {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.9rem;
+    color: #555;
+    background-color: #fff;
+    cursor: pointer;
+    outline: none;
+}
+
+.appt-filter-select:focus {
+    border-color: #2bc4ad;
+}
+
 .customer-list-count {
     color: #888;
     font-size: 0.9rem;
@@ -300,6 +321,7 @@
 
 .appt-card:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
 }
 
 .appt-card-header {
@@ -324,6 +346,23 @@
     white-space: nowrap;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+}
+
+.appt-card-datetime {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.appt-card-date {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.appt-card-time {
+    font-size: 0.8rem;
+    color: #888;
 }
 
 .appt-card-field {
@@ -391,6 +430,113 @@
     font-size: 0.9rem;
 }
 
+/* Appointment Detail */
+.appt-detail-page {
+    background-color: #f5f6fa;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.appt-detail-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.appt-detail-back-btn {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    transition: background-color 0.15s ease;
+}
+
+.appt-detail-back-btn:hover {
+    background-color: #e4e6ec;
+}
+
+.appt-detail-delete-btn {
+    background-color: #e53935;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.45rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.appt-detail-delete-btn:hover {
+    background-color: #b71c1c;
+}
+
+.appt-detail-card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.appt-detail-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.75rem;
+}
+
+.appt-detail-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #222;
+    margin-bottom: 0.25rem;
+}
+
+.appt-detail-id {
+    color: #aaa;
+    font-size: 0.85rem;
+}
+
+.appt-detail-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.appt-detail-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.appt-detail-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.appt-detail-value {
+    font-size: 1rem;
+    color: #333;
+}
+
+.appt-detail-customer-link {
+    font-size: 1rem;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.appt-detail-customer-link:hover {
+    text-decoration: underline;
+}
+
 /* ── Home Page ──────────────────────────────────────────── */
 .home-page {
     background-color: #f5f6fa;
@@ -399,10 +545,25 @@
 
 /* Hero */
 .home-hero {
-    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     color: #fff;
     padding: 5rem 2rem;
     text-align: center;
+}
+
+.home-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.home-hero > * {
+    position: relative;
+    z-index: 1;
 }
 
 .home-hero-title {

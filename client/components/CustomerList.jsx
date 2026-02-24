@@ -8,6 +8,7 @@ export default function CustomerList() {
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [sortOrder, setSortOrder] = useState('newest');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -39,15 +40,31 @@ export default function CustomerList() {
     if (loading) return <div className="text-center mt-5"><Spinner animation="border" /></div>;
     if (error) return <Alert variant="danger" className="mt-3">{error}</Alert>;
 
+    const sorted = [...customers].sort((a, b) => {
+        const aTime = a.created_at ? new Date(a.created_at) : new Date(0);
+        const bTime = b.created_at ? new Date(b.created_at) : new Date(0);
+        return sortOrder === 'newest' ? bTime - aTime : aTime - bTime;
+    });
+
     return (
         <div className="customer-list-page">
             <h1 className="customer-list-title">Customers</h1>
 
             <div className="customer-list-toolbar">
                 <span className="customer-list-count">{customers.length} Customers</span>
-                <Link to="/dashboard/customers/add">
-                    <button className="customer-list-add-btn">+ Add Customer</button>
-                </Link>
+                <div className="appt-toolbar-right">
+                    <select
+                        className="appt-filter-select"
+                        value={sortOrder}
+                        onChange={e => setSortOrder(e.target.value)}
+                    >
+                        <option value="newest">Newest</option>
+                        <option value="oldest">Oldest</option>
+                    </select>
+                    <Link to="/dashboard/customers/add">
+                        <button className="customer-list-add-btn">+ Add Customer</button>
+                    </Link>
+                </div>
             </div>
 
             <div className="customer-list-header">
@@ -59,7 +76,7 @@ export default function CustomerList() {
             </div>
 
             <div className="customer-list-rows">
-                {customers.map(customer => (
+                {sorted.map(customer => (
                     <div key={customer.id} className="customer-list-row" onClick={() => navigate(`/dashboard/customers/${customer.id}`)}>
                         <span className="customer-list-name">
                             {customer.first_name} {customer.last_name}
