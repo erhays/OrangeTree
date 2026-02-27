@@ -160,10 +160,6 @@
         white-space: nowrap;
         text-overflow: ellipsis;
     }
-
-    .appt-grid {
-        grid-template-columns: 1fr;
-    }
 }
 
 /* Customer detail */
@@ -325,6 +321,12 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
+}
+
+@media (max-width: 639px) {
+    .appt-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .appt-card {
