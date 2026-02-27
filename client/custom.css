@@ -8,9 +8,11 @@
     transition: color 0.15s, background-color 0.15s;
 }
 
-.sidebar-link:hover {
-    color: #ffffff;
-    background-color: #334155; /* slate-700 */
+@media (hover: hover) {
+    .sidebar-link:hover {
+        color: #ffffff;
+        background-color: #334155; /* slate-700 */
+    }
 }
 
 .sidebar-link.active {
@@ -145,6 +147,22 @@
 
 .customer-list-delete-btn:hover {
     background-color: #b71c1c;
+}
+
+@media (max-width: 639px) {
+    .customer-list-header,
+    .customer-list-row {
+        grid-template-columns: 2fr 2fr;
+    }
+
+    .customer-list-header > :nth-child(2),
+    .customer-list-header > :nth-child(4),
+    .customer-list-header > :nth-child(5),
+    .customer-list-phone,
+    .customer-list-id,
+    .customer-list-delete-btn {
+        display: none;
+    }
 }
 
 /* Customer detail */
