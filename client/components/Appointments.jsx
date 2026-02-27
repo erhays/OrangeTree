@@ -67,7 +67,8 @@ export default function Appointments() {
                         {STATUSES.map(s => <option key={s}>{s}</option>)}
                     </select>
                     <button className="customer-list-add-btn" onClick={() => navigate('/dashboard/appointments/add')}>
-                        + Book Appointment
+                        <span className="hidden sm:inline">+ Book Appointment</span>
+                        <span className="sm:hidden">+ Book</span>
                     </button>
                 </div>
             </div>

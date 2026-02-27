@@ -88,7 +88,7 @@
 
 .customer-list-header {
     display: grid;
-    grid-template-columns: 2fr 1.5fr 2fr 1.5fr auto;
+    grid-template-columns: 2fr 2fr auto;
     padding: 0.75rem 1.25rem;
     font-size: 0.75rem;
     font-weight: 600;
@@ -105,7 +105,7 @@
 
 .customer-list-row {
     display: grid;
-    grid-template-columns: 2fr 1.5fr 2fr 1.5fr auto;
+    grid-template-columns: 2fr 2fr auto;
     align-items: center;
     background-color: #fff;
     border-radius: 8px;
@@ -124,15 +124,10 @@
     color: #333;
 }
 
-.customer-list-phone,
 .customer-list-email {
     color: #555;
 }
 
-.customer-list-id {
-    color: #999;
-    font-size: 0.85rem;
-}
 
 .customer-list-delete-btn {
     background-color: #e53935;
@@ -155,13 +150,19 @@
         grid-template-columns: 2fr 2fr;
     }
 
-    .customer-list-header > :nth-child(2),
-    .customer-list-header > :nth-child(4),
-    .customer-list-header > :nth-child(5),
-    .customer-list-phone,
-    .customer-list-id,
+    .customer-list-header > :nth-child(3),
     .customer-list-delete-btn {
         display: none;
+    }
+
+    .customer-list-email {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .appt-grid {
+        grid-template-columns: 1fr;
     }
 }
 

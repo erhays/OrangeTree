@@ -62,16 +62,17 @@ export default function CustomerList() {
                         <option value="oldest">Oldest</option>
                     </select>
                     <Link to="/dashboard/customers/add">
-                        <button className="customer-list-add-btn">+ Add Customer</button>
+                        <button className="customer-list-add-btn">
+                            <span className="hidden sm:inline">+ Add Customer</span>
+                            <span className="sm:hidden">+ Add</span>
+                        </button>
                     </Link>
                 </div>
             </div>
 
             <div className="customer-list-header">
                 <span>Name</span>
-                <span>Phone</span>
                 <span>Email</span>
-                <span>Customer ID</span>
                 <span></span>
             </div>
 
@@ -81,9 +82,7 @@ export default function CustomerList() {
                         <span className="customer-list-name">
                             {customer.first_name} {customer.last_name}
                         </span>
-                        <span className="customer-list-phone">{customer.phone}</span>
                         <span className="customer-list-email">{customer.email}</span>
-                        <span className="customer-list-id">#{customer.id}</span>
                         <button
                             className="customer-list-delete-btn"
                             onClick={(e) => { e.stopPropagation(); handleDelete(customer.id, `${customer.first_name} ${customer.last_name}`); }}
