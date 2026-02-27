@@ -11,6 +11,14 @@ const STATUS_COLORS = {
     'No Show':   '#ea580c',
 };
 
+function formatDate(dt) {
+    return new Date(dt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function formatTime(dt) {
+    return new Date(dt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
 function formatDateTime(dt) {
     return new Date(dt).toLocaleString('en-US', {
         month: 'short', day: 'numeric', year: 'numeric',
@@ -55,41 +63,48 @@ export default function AppointmentDetail() {
                 <button className="appt-detail-back-btn" onClick={() => navigate('/dashboard/appointments')}>
                     ← Back
                 </button>
-                <button className="appt-detail-delete-btn" onClick={handleDelete}>
-                    Delete
-                </button>
+                <div className="flex gap-2 sm:hidden">
+                    <button className="appt-detail-edit-btn" onClick={() => navigate(`/dashboard/appointments/${id}/edit`)}>
+                        Edit
+                    </button>
+                    <button className="appt-detail-delete-btn" onClick={handleDelete}>
+                        Delete
+                    </button>
+                </div>
             </div>
 
             <div className="appt-detail-card">
                 <div className="appt-detail-card-header">
-                    <div>
-                        <h2 className="appt-detail-title">{appt.service_type} Detail</h2>
-                        <span className="appt-detail-id">Appointment #{appt.id}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <h2 className="appt-detail-title">
+                            <Link to={`/dashboard/customers/${appt.customer_id}`} className="appt-detail-customer-link">
+                                {appt.first_name} {appt.last_name}
+                            </Link>
+                        </h2>
+                        <span
+                            className="appt-status-badge"
+                            style={{ backgroundColor: STATUS_COLORS[appt.status] || '#9ca3af' }}
+                        >
+                            {appt.status}
+                        </span>
                     </div>
-                    <span
-                        className="appt-status-badge"
-                        style={{ backgroundColor: STATUS_COLORS[appt.status] || '#9ca3af' }}
-                    >
-                        {appt.status}
-                    </span>
+                    <div className="hidden sm:flex" style={{ gap: '0.5rem' }}>
+                        <button className="appt-detail-edit-btn" onClick={() => navigate(`/dashboard/appointments/${id}/edit`)}>
+                            Edit
+                        </button>
+                        <button className="appt-detail-delete-btn" onClick={handleDelete}>
+                            Delete
+                        </button>
+                    </div>
                 </div>
 
                 <div className="appt-detail-fields">
                     <div className="appt-detail-field">
-                        <span className="appt-detail-label">Customer</span>
-                        <Link
-                            to={`/dashboard/customers/${appt.customer_id}`}
-                            className="appt-detail-customer-link"
-                        >
-                            {appt.first_name} {appt.last_name}
-                        </Link>
+                        <span className="appt-detail-value">{formatDate(appt.date_time)}</span>
+                        <span className="appt-card-time">{formatTime(appt.date_time)}</span>
                     </div>
                     <div className="appt-detail-field">
-                        <span className="appt-detail-label">Date & Time</span>
-                        <span className="appt-detail-value">{formatDateTime(appt.date_time)}</span>
-                    </div>
-                    <div className="appt-detail-field">
-                        <span className="appt-detail-label">Service</span>
+                        <span className="appt-detail-label">Service Type</span>
                         <span className="appt-detail-value">{appt.service_type}</span>
                     </div>
                     <div className="appt-detail-field">

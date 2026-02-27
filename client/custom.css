@@ -3,28 +3,35 @@
     padding: 0.5rem 0.75rem;
     border-radius: 0.375rem;
     font-size: 0.875rem;
-    color: #cbd5e1; /* slate-300 */
+    color: #6b7280;
     text-decoration: none;
     transition: color 0.15s, background-color 0.15s;
 }
 
 @media (hover: hover) {
     .sidebar-link:hover {
-        color: #ffffff;
-        background-color: #334155; /* slate-700 */
+        color: #111827;
+        background-color: #f3f4f6;
     }
 }
 
 .sidebar-link.active {
-    color: #ffffff;
+    color: #111827;
     font-weight: 600;
-    background-color: #334155; /* slate-700 */
+    background-color: #f3f4f6;
+}
+
+/* App shell */
+.page-content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 /* Customer list */
 .customer-list-page {
     background-color: #f5f6fa;
-    min-height: 100vh;
+    min-height: 100%;
     padding: 2rem;
 }
 
@@ -165,7 +172,7 @@
 /* Customer detail */
 .customer-detail-page {
     background-color: #f5f6fa;
-    min-height: 100vh;
+    min-height: 100%;
     padding: 2rem;
 }
 
@@ -313,7 +320,7 @@
 /* Appointments */
 .appt-page {
     background-color: #f5f6fa;
-    min-height: 100vh;
+    min-height: 100%;
     padding: 2rem;
 }
 
@@ -454,7 +461,7 @@
 /* Appointment Detail */
 .appt-detail-page {
     background-color: #f5f6fa;
-    min-height: 100vh;
+    min-height: 100%;
     padding: 2rem;
 }
 
@@ -496,6 +503,24 @@
     background-color: #b71c1c;
 }
 
+.appt-detail-edit-btn {
+    background-color: #2bc4ad;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.45rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+@media (hover: hover) {
+    .appt-detail-edit-btn:hover {
+        background-color: #24b09c;
+    }
+}
+
 .appt-detail-card {
     background-color: #fff;
     border-radius: 10px;
@@ -506,7 +531,7 @@
 .appt-detail-card-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     margin-bottom: 1.75rem;
 }
 
@@ -514,7 +539,13 @@
     font-size: 1.5rem;
     font-weight: 500;
     color: #222;
-    margin-bottom: 0.25rem;
+    margin: 0;
+}
+
+.appt-detail-title .appt-detail-customer-link {
+    font-size: inherit;
+    font-weight: inherit;
+    color: #222;
 }
 
 .appt-detail-id {
@@ -526,6 +557,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    text-align: left;
 }
 
 .appt-detail-field {
@@ -561,7 +593,7 @@
 /* ── Home Page ──────────────────────────────────────────── */
 .home-page {
     background-color: #f5f6fa;
-    min-height: 100vh;
+    min-height: 100%;
 }
 
 /* Hero */
@@ -771,7 +803,7 @@
 /* ── Book Appointment Page ──────────────────────────────── */
 .book-page {
     background-color: #f5f6fa;
-    min-height: 100vh;
+    min-height: 100%;
     padding: 3rem 1.5rem;
     display: flex;
     justify-content: center;

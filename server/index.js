@@ -6,6 +6,9 @@ import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { existsSync } from 'fs';
+import session from 'express-session';
+import connectPgSimple from 'connect-pg-simple';
+import bcrypt from 'bcrypt';
 
 dotenv.config();
 
@@ -38,8 +41,65 @@ pool.connect((err) => {
   }
 });
 
+// Session store + middleware
+const PgSession = connectPgSimple(session);
+app.use(session({
+    store: new PgSession({ pool, createTableIfMissing: true }),
+    secret: process.env.SESSION_SECRET || 'change-me-in-production',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    },
+}));
+
+const requireAuth = (req, res, next) => {
+    if (req.session?.userId) return next();
+    res.status(401).json({ error: 'Unauthorized' });
+};
+
+// Auth routes
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required.' });
+    }
+    try {
+        const result = await pool.query('SELECT id, email, password_hash FROM users WHERE email = $1', [email.trim()]);
+        if (result.rowCount === 0) {
+            return res.status(401).json({ error: 'Invalid credentials.' });
+        }
+        const user = result.rows[0];
+        const match = await bcrypt.compare(password, user.password_hash);
+        if (!match) {
+            return res.status(401).json({ error: 'Invalid credentials.' });
+        }
+        req.session.userId = user.id;
+        req.session.email = user.email;
+        res.json({ success: true, email: user.email });
+    } catch (err) {
+        console.error('Login error:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/me', (req, res) => {
+    if (!req.session?.userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    res.json({ id: req.session.userId, email: req.session.email });
+});
+
+app.post('/api/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.json({ success: true });
+    });
+});
+
 // Get all customers API endpoint
-app.get('/api/customers', async (req, res) => {
+app.get('/api/customers', requireAuth, async (req, res) => {
     try {
         const result = await pool.query('SELECT id, first_name, last_name, email, phone, created_at FROM customer ORDER BY id ASC');
 
@@ -54,7 +114,7 @@ app.get('/api/customers', async (req, res) => {
 });
 
 // Add-customer API endpoint
-app.post('/api/customers', async (req, res) => {
+app.post('/api/customers', requireAuth, async (req, res) => {
   const { firstName, lastName, email, phone } = req.body;
 
   if (!firstName || !lastName || !email) {
@@ -86,7 +146,7 @@ app.post('/api/customers', async (req, res) => {
 });
 
 // Get single customer API endpoint
-app.get('/api/customers/:id', async (req, res) => {
+app.get('/api/customers/:id', requireAuth, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query(
@@ -104,7 +164,7 @@ app.get('/api/customers/:id', async (req, res) => {
 });
 
 // Update customer API endpoint
-app.put('/api/customers/:id', async (req, res) => {
+app.put('/api/customers/:id', requireAuth, async (req, res) => {
     const { id } = req.params;
     const { firstName, lastName, email, phone } = req.body;
     if (!firstName || !lastName || !email) {
@@ -127,7 +187,7 @@ app.put('/api/customers/:id', async (req, res) => {
 });
 
 // Delete customer API endpoint
-app.delete('/api/customers/:id', async (req, res) => {
+app.delete('/api/customers/:id', requireAuth, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query('DELETE FROM customer WHERE id = $1 RETURNING id', [id]);
@@ -142,7 +202,7 @@ app.delete('/api/customers/:id', async (req, res) => {
 });
 
 // Get appointments for a specific customer
-app.get('/api/customers/:id/appointments', async (req, res) => {
+app.get('/api/customers/:id/appointments', requireAuth, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query(
@@ -160,7 +220,7 @@ app.get('/api/customers/:id/appointments', async (req, res) => {
 });
 
 // Get all appointments API endpoint
-app.get('/api/appointments', async (req, res) => {
+app.get('/api/appointments', requireAuth, async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT a.id, a.date_time, a.service_type, a.status, a.notes, a.created_at,
@@ -177,7 +237,7 @@ app.get('/api/appointments', async (req, res) => {
 });
 
 // Get single appointment API endpoint
-app.get('/api/appointments/:id', async (req, res) => {
+app.get('/api/appointments/:id', requireAuth, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query(
@@ -199,7 +259,7 @@ app.get('/api/appointments/:id', async (req, res) => {
 });
 
 // Create appointment API endpoint
-app.post('/api/appointments', async (req, res) => {
+app.post('/api/appointments', requireAuth, async (req, res) => {
     const { customerId, dateTime, serviceType, status, notes } = req.body;
     if (!customerId || !dateTime || !serviceType || !status) {
         return res.status(400).json({ error: 'Bad Request', message: 'Customer, date/time, service type, and status are required.' });
@@ -218,8 +278,30 @@ app.post('/api/appointments', async (req, res) => {
     }
 });
 
+// Update appointment API endpoint
+app.put('/api/appointments/:id', requireAuth, async (req, res) => {
+    const { id } = req.params;
+    const { customerId, dateTime, serviceType, status, notes } = req.body;
+    if (!customerId || !dateTime || !serviceType || !status) {
+        return res.status(400).json({ error: 'Bad Request', message: 'Customer, date/time, service type, and status are required.' });
+    }
+    try {
+        const result = await pool.query(
+            `UPDATE appointment SET customer_id=$1, date_time=$2, service_type=$3, status=$4, notes=$5 WHERE id=$6 RETURNING id`,
+            [customerId, dateTime, serviceType, status, notes?.trim() || null, id]
+        );
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Not Found', message: 'Appointment not found.' });
+        }
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error updating appointment:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
 // Delete appointment API endpoint
-app.delete('/api/appointments/:id', async (req, res) => {
+app.delete('/api/appointments/:id', requireAuth, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query('DELETE FROM appointment WHERE id = $1 RETURNING id', [id]);

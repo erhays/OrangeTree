@@ -10,7 +10,7 @@ const links = [
 
 function Sidebar() {
     return (
-        <aside className="bg-slate-800 md:w-56 md:min-h-screen md:px-4 md:py-6 w-full px-3 py-2">
+        <aside className="bg-white border-b border-gray-200 md:border-b-0 md:border-r md:w-56 md:shrink-0 md:overflow-y-auto md:px-4 md:py-6 w-full px-3 py-2">
             <nav className="flex flex-wrap justify-center gap-1 md:flex-col md:flex-nowrap md:justify-start md:gap-0 md:space-y-1">
                 {links.map(({ to, label }) => (
                     <NavLink

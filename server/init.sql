@@ -24,3 +24,10 @@ CREATE TABLE IF NOT EXISTS contact_inquiry (
     message    TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS users (
+    id            SERIAL PRIMARY KEY,
+    email         TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    created_at    TIMESTAMP DEFAULT NOW()
+);
