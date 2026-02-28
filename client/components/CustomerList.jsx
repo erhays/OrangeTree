@@ -48,7 +48,7 @@ export default function CustomerList() {
 
     return (
         <div className="customer-list-page">
-            <h1 className="customer-list-title">Customers</h1>
+            <h2 className="customer-list-title">Customers</h2>
 
             <div className="customer-list-toolbar">
                 <span className="customer-list-count">{customers.length} Customers</span>

@@ -30,15 +30,14 @@
 
 /* Customer list */
 .customer-list-page {
-    background-color: #f5f6fa;
     min-height: 100%;
     padding: 2rem;
 }
 
 .customer-list-title {
-    font-size: 1.75rem;
-    font-weight: 400;
-    color: #333;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
     margin-bottom: 1.5rem;
 }
 
@@ -115,15 +114,16 @@
     grid-template-columns: 2fr 2fr auto;
     align-items: center;
     background-color: #fff;
-    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
     padding: 1rem 1.25rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    transition: box-shadow 0.15s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    transition: border-color 0.15s ease;
     cursor: pointer;
 }
 
 .customer-list-row:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
 }
 
 .customer-list-name {
@@ -217,9 +217,10 @@
 
 .customer-detail-card {
     background-color: #fff;
-    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .customer-detail-name {
@@ -281,9 +282,10 @@
     width: 100%;
     border-collapse: collapse;
     background: #fff;
-    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .customer-appt-table th {
@@ -357,7 +359,6 @@
 
 /* Appointments */
 .appt-page {
-    background-color: #f5f6fa;
     min-height: 100%;
     padding: 2rem;
 }
@@ -376,17 +377,18 @@
 
 .appt-card {
     background-color: #fff;
-    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
     padding: 1.25rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    transition: box-shadow 0.15s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    transition: border-color 0.15s ease;
 }
 
 .appt-card:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
     cursor: pointer;
 }
 
@@ -562,9 +564,10 @@
 
 .appt-detail-card {
     background-color: #fff;
-    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .appt-detail-card-header {

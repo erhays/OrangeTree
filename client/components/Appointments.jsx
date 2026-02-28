@@ -54,7 +54,7 @@ export default function Appointments() {
 
     return (
         <div className="appt-page">
-            <h1 className="customer-list-title">Appointments</h1>
+            <h2 className="customer-list-title">Appointments</h2>
 
             <div className="customer-list-toolbar">
                 <span className="customer-list-count">{filtered.length} Appointments</span>
