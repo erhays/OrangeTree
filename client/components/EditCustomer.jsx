@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
-import { Spinner } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 
@@ -13,24 +11,13 @@ export default function EditCustomer() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        const fetchCustomer = async () => {
-            try {
-                const response = await axios.get(`/api/customers/${id}`);
-                const c = response.data;
-                setCustomer({
-                    firstName: c.first_name,
-                    lastName: c.last_name,
-                    email: c.email,
-                    phone: c.phone || ''
-                });
-            } catch (err) {
-                console.error(err);
-                toast.error('Failed to load customer.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchCustomer();
+        axios.get(`/api/customers/${id}`)
+            .then(res => {
+                const c = res.data;
+                setCustomer({ firstName: c.first_name, lastName: c.last_name, email: c.email, phone: c.phone || '' });
+            })
+            .catch(() => toast.error('Failed to load customer.'))
+            .finally(() => setLoading(false));
     }, [id]);
 
     const handleChange = (e) => {
@@ -45,88 +32,97 @@ export default function EditCustomer() {
             await axios.put(`/api/customers/${id}`, customer);
             toast.success('Customer updated.');
             navigate(`/dashboard/customers/${id}`);
-        } catch (err) {
-            console.error(err);
+        } catch {
             toast.error('Failed to update customer.');
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    if (loading) return <div className="text-center mt-5"><Spinner animation="border" /></div>;
+    if (loading) return <div style={{ padding: '2rem', color: '#888' }}>Loading…</div>;
 
     return (
-        <>
-            <h2>Edit Customer</h2>
-            <Container className="mt-5">
-                <Row className="justify-content-center">
-                    <Col lg={8}>
-                        <Card className="shadow">
-                            <Card.Header className="bg-primary text-white">
-                                <h4 className="mb-0">Edit Customer</h4>
-                            </Card.Header>
-                            <Card.Body className="p-4">
-                                <Form onSubmit={handleSubmit}>
-                                    <Row className="g-3">
-                                        <Col md={6}>
-                                            <Form.Label>First Name</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name="firstName"
-                                                value={customer.firstName}
-                                                onChange={handleChange}
-                                                required
-                                            />
-                                        </Col>
-                                        <Col md={6}>
-                                            <Form.Label>Last Name</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name="lastName"
-                                                value={customer.lastName}
-                                                onChange={handleChange}
-                                                required
-                                            />
-                                        </Col>
-                                        <Col xs={12}>
-                                            <Form.Label>Email</Form.Label>
-                                            <Form.Control
-                                                type="email"
-                                                name="email"
-                                                value={customer.email}
-                                                onChange={handleChange}
-                                                required
-                                            />
-                                        </Col>
-                                        <Col md={6}>
-                                            <Form.Label>Phone</Form.Label>
-                                            <Form.Control
-                                                type="tel"
-                                                name="phone"
-                                                value={customer.phone}
-                                                onChange={handleChange}
-                                            />
-                                        </Col>
-                                        <Col xs={12} className="d-flex gap-3 mt-4">
-                                            <Button
-                                                variant="outline-secondary"
-                                                type="button"
-                                                className="flex-grow-1"
-                                                onClick={() => navigate(`/dashboard/customers/${id}`)}
-                                            >
-                                                Cancel
-                                            </Button>
-                                            <Button variant="primary" type="submit" className="flex-grow-1" disabled={isSubmitting}>
-                                                {isSubmitting ? 'Saving…' : 'Save Changes'}
-                                            </Button>
-                                        </Col>
-                                    </Row>
-                                </Form>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
-            </Container>
-        </>
+        <div style={{ padding: '2rem' }}>
+            <h2 style={{ marginBottom: '1.5rem', fontSize: '1.25rem', fontWeight: 600, color: '#111' }}>Edit Customer</h2>
+
+            <form className="home-contact-form" style={{ margin: 0 }} onSubmit={handleSubmit}>
+                <div className="home-contact-row">
+                    <div className="home-contact-field">
+                        <label className="home-contact-label">First Name</label>
+                        <input
+                            className="home-contact-input"
+                            type="text"
+                            name="firstName"
+                            value={customer.firstName}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="home-contact-field">
+                        <label className="home-contact-label">Last Name</label>
+                        <input
+                            className="home-contact-input"
+                            type="text"
+                            name="lastName"
+                            value={customer.lastName}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                </div>
+
+                <div className="home-contact-row">
+                    <div className="home-contact-field">
+                        <label className="home-contact-label">Email</label>
+                        <input
+                            className="home-contact-input"
+                            type="email"
+                            name="email"
+                            value={customer.email}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="home-contact-field">
+                        <label className="home-contact-label">Phone</label>
+                        <input
+                            className="home-contact-input"
+                            type="tel"
+                            name="phone"
+                            value={customer.phone}
+                            onChange={handleChange}
+                        />
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                    <button
+                        type="button"
+                        onClick={() => navigate(`/dashboard/customers/${id}`)}
+                        style={{
+                            padding: '0.7rem 1.75rem',
+                            border: '1px solid #ddd',
+                            borderRadius: '7px',
+                            fontSize: '0.95rem',
+                            fontWeight: 600,
+                            color: '#555',
+                            background: 'none',
+                            cursor: 'pointer',
+                            transition: 'background 0.15s ease',
+                        }}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        className="home-contact-btn"
+                        style={{ alignSelf: 'auto' }}
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Saving…' : 'Save Changes'}
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 }

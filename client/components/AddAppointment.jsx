@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 
@@ -20,7 +19,7 @@ export default function AddAppointment() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        axios.get('/api/customers').then(res => setCustomers(res.data)).catch(console.error);
+        axios.get('/api/customers').then(res => setCustomers(res.data)).catch(() => toast.error('Failed to load customers.'));
     }, []);
 
     const handleChange = (e) => {
@@ -35,8 +34,7 @@ export default function AddAppointment() {
             await axios.post('/api/appointments', form);
             toast.success('Appointment booked.');
             navigate('/dashboard/appointments');
-        } catch (err) {
-            console.error(err);
+        } catch {
             toast.error('Failed to book appointment.');
         } finally {
             setIsSubmitting(false);
@@ -44,87 +42,88 @@ export default function AddAppointment() {
     };
 
     return (
-        <>
-            <h2>Book Appointment</h2>
-            <Container className="mt-5">
-                <Row className="justify-content-center">
-                    <Col lg={8}>
-                        <Card className="shadow">
-                            <Card.Header className="bg-primary text-white">
-                                <h4 className="mb-0">New Appointment</h4>
-                            </Card.Header>
-                            <Card.Body className="p-4">
-                                <Form onSubmit={handleSubmit}>
-                                    <Row className="g-3">
-                                        <Col xs={12}>
-                                            <Form.Label>Customer</Form.Label>
-                                            <Form.Select name="customerId" value={form.customerId} onChange={handleChange} required>
-                                                <option value="">Select a customer...</option>
-                                                {customers.map(c => (
-                                                    <option key={c.id} value={c.id}>
-                                                        {c.first_name} {c.last_name}
-                                                    </option>
-                                                ))}
-                                            </Form.Select>
-                                        </Col>
+        <div style={{ padding: '2rem' }}>
+            <h2 style={{ marginBottom: '1.5rem', fontSize: '1.25rem', fontWeight: 600, color: '#111' }}>Book Appointment</h2>
 
-                                        <Col md={6}>
-                                            <Form.Label>Date & Time</Form.Label>
-                                            <Form.Control
-                                                type="datetime-local"
-                                                name="dateTime"
-                                                value={form.dateTime}
-                                                onChange={handleChange}
-                                                required
-                                            />
-                                        </Col>
+            <form className="home-contact-form" style={{ margin: 0 }} onSubmit={handleSubmit}>
+                <div className="home-contact-field">
+                    <label className="home-contact-label">Customer</label>
+                    <select className="home-contact-input" name="customerId" value={form.customerId} onChange={handleChange} required>
+                        <option value="">Select a customer…</option>
+                        {customers.map(c => (
+                            <option key={c.id} value={c.id}>{c.first_name} {c.last_name}</option>
+                        ))}
+                    </select>
+                </div>
 
-                                        <Col md={6}>
-                                            <Form.Label>Service Type</Form.Label>
-                                            <Form.Select name="serviceType" value={form.serviceType} onChange={handleChange} required>
-                                                <option value="">Select...</option>
-                                                {SERVICE_TYPES.map(s => <option key={s}>{s}</option>)}
-                                            </Form.Select>
-                                        </Col>
+                <div className="home-contact-row">
+                    <div className="home-contact-field">
+                        <label className="home-contact-label">Date & Time</label>
+                        <input
+                            className="home-contact-input"
+                            type="datetime-local"
+                            name="dateTime"
+                            value={form.dateTime}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="home-contact-field">
+                        <label className="home-contact-label">Service Type</label>
+                        <select className="home-contact-input" name="serviceType" value={form.serviceType} onChange={handleChange} required>
+                            <option value="">Select…</option>
+                            {SERVICE_TYPES.map(s => <option key={s}>{s}</option>)}
+                        </select>
+                    </div>
+                </div>
 
-                                        <Col md={6}>
-                                            <Form.Label>Status</Form.Label>
-                                            <Form.Select name="status" value={form.status} onChange={handleChange}>
-                                                {STATUSES.map(s => <option key={s}>{s}</option>)}
-                                            </Form.Select>
-                                        </Col>
+                <div className="home-contact-field">
+                    <label className="home-contact-label">Status</label>
+                    <select className="home-contact-input" name="status" value={form.status} onChange={handleChange}>
+                        {STATUSES.map(s => <option key={s}>{s}</option>)}
+                    </select>
+                </div>
 
-                                        <Col xs={12}>
-                                            <Form.Label>Notes</Form.Label>
-                                            <Form.Control
-                                                as="textarea"
-                                                rows={3}
-                                                name="notes"
-                                                value={form.notes}
-                                                onChange={handleChange}
-                                            />
-                                        </Col>
+                <div className="home-contact-field">
+                    <label className="home-contact-label">Notes</label>
+                    <textarea
+                        className="home-contact-input home-contact-textarea"
+                        name="notes"
+                        value={form.notes}
+                        onChange={handleChange}
+                        rows={3}
+                        placeholder="Any notes about the appointment…"
+                    />
+                </div>
 
-                                        <Col xs={12} className="d-flex gap-3 mt-4">
-                                            <Button
-                                                variant="outline-secondary"
-                                                type="button"
-                                                className="flex-grow-1"
-                                                onClick={() => navigate('/dashboard/appointments')}
-                                            >
-                                                Cancel
-                                            </Button>
-                                            <Button variant="primary" type="submit" className="flex-grow-1" disabled={isSubmitting}>
-                                                {isSubmitting ? 'Booking…' : 'Book Appointment'}
-                                            </Button>
-                                        </Col>
-                                    </Row>
-                                </Form>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
-            </Container>
-        </>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                    <button
+                        type="button"
+                        onClick={() => navigate('/dashboard/appointments')}
+                        style={{
+                            padding: '0.7rem 1.75rem',
+                            border: '1px solid #ddd',
+                            borderRadius: '7px',
+                            fontSize: '0.95rem',
+                            fontWeight: 600,
+                            color: '#555',
+                            background: 'none',
+                            cursor: 'pointer',
+                            transition: 'background 0.15s ease',
+                        }}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        className="home-contact-btn"
+                        style={{ alignSelf: 'auto' }}
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Booking…' : 'Book Appointment'}
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 }
