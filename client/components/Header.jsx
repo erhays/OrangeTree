@@ -34,7 +34,10 @@ function Header() {
                     {/* Desktop Menu */}
                     <div className="hidden md:flex md:items-center md:space-x-8">
                         {authed ? (
-                            <button onClick={handleLogout} className={linkClass}>Logout</button>
+                            <>
+                                <Link to="/dashboard" className={linkClass}>Dashboard</Link>
+                                <button onClick={handleLogout} className={linkClass}>Logout</button>
+                            </>
                         ) : (
                             <Link to="/login" className={linkClass}>
                                 <svg xmlns="http://www.w3.org/2000/svg" className="inline-block w-3.5 h-3.5 mr-1 -mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -75,7 +78,10 @@ function Header() {
                             transition={{ duration: 0.18, ease: 'easeOut' }}
                         >
                             {authed ? (
-                                <button onClick={handleLogout} className={mobileLinkClass}>Logout</button>
+                                <>
+                                    <Link to="/dashboard" className={mobileLinkClass} onClick={() => setMenuOpen(false)}>Dashboard</Link>
+                                    <button onClick={handleLogout} className={mobileLinkClass}>Logout</button>
+                                </>
                             ) : (
                                 <Link to="/login" className={mobileLinkClass} onClick={() => setMenuOpen(false)}>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>

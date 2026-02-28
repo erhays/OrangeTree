@@ -31,3 +31,15 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     created_at    TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS post (
+    id         SERIAL PRIMARY KEY,
+    title      TEXT NOT NULL,
+    body       TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO post (title, body) SELECT
+    'Welcome to OrangeTree Detailing',
+    'We''re thrilled to launch our new website! Whether you''re looking for a quick refresh or a full premium detail, our team is ready to bring your vehicle back to showroom condition. Book an appointment online or reach out with any questions — we''d love to hear from you.'
+WHERE NOT EXISTS (SELECT 1 FROM post LIMIT 1);

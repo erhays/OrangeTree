@@ -92,7 +92,7 @@ export default function CustomerDetail() {
                         </thead>
                         <tbody>
                             {appointments.map(appt => (
-                                <tr key={appt.id}>
+                                <tr key={appt.id} className="customer-appt-row" onClick={() => navigate(`/dashboard/appointments/${appt.id}`)}>
                                     <td>{formatDateTime(appt.date_time)}</td>
                                     <td>{appt.service_type}</td>
                                     <td>

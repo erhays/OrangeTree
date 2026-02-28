@@ -98,6 +98,22 @@ app.post('/api/logout', (req, res) => {
     });
 });
 
+// Create a new user (admin only)
+app.post('/api/users', requireAuth, async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Email and password are required.' });
+    if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+    try {
+        const hash = await bcrypt.hash(password, 12);
+        await pool.query('INSERT INTO users (email, password_hash) VALUES ($1, $2)', [email.trim().toLowerCase(), hash]);
+        res.status(201).json({ success: true });
+    } catch (err) {
+        if (err.code === '23505') return res.status(409).json({ error: 'A user with that email already exists.' });
+        console.error(err);
+        res.status(500).json({ error: 'Failed to create user.' });
+    }
+});
+
 // Get all customers API endpoint
 app.get('/api/customers', requireAuth, async (req, res) => {
     try {
@@ -311,6 +327,85 @@ app.delete('/api/appointments/:id', requireAuth, async (req, res) => {
         res.json({ success: true, message: 'Appointment deleted.' });
     } catch (error) {
         console.error('Error deleting appointment:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+// Insights / analytics
+app.get('/api/insights', requireAuth, async (_req, res) => {
+    try {
+        const [summary, byMonth] = await Promise.all([
+            pool.query(`
+                SELECT
+                    (SELECT COUNT(*) FROM customer)::int AS total_customers,
+                    (SELECT COUNT(*) FROM appointment)::int AS total_appointments,
+                    (SELECT COUNT(*) FROM appointment WHERE status = 'Scheduled' AND date_time > NOW())::int AS upcoming,
+                    (SELECT ROUND(COUNT(*) FILTER (WHERE status = 'Completed') * 100.0 / NULLIF(COUNT(*), 0), 1)
+                     FROM appointment)::float AS completion_rate
+            `),
+            pool.query(`
+                SELECT TO_CHAR(DATE_TRUNC('month', date_time), 'Mon ''YY') AS month,
+                       COUNT(*)::int AS count
+                FROM appointment
+                WHERE date_time >= NOW() - INTERVAL '12 months'
+                GROUP BY DATE_TRUNC('month', date_time), month
+                ORDER BY DATE_TRUNC('month', date_time)
+            `)
+        ]);
+        res.json({ summary: summary.rows[0], byMonth: byMonth.rows });
+    } catch (error) {
+        console.error('Error fetching insights:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+// Posts (public read, auth write)
+app.get('/api/posts', async (_req, res) => {
+    try {
+        const result = await pool.query('SELECT id, title, body, created_at FROM post ORDER BY created_at DESC');
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+app.post('/api/posts', requireAuth, async (req, res) => {
+    const { title, body } = req.body;
+    if (!title || !body) return res.status(400).json({ error: 'Title and body are required.' });
+    try {
+        const result = await pool.query(
+            'INSERT INTO post (title, body) VALUES ($1, $2) RETURNING *',
+            [title.trim(), body.trim()]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+app.put('/api/posts/:id', requireAuth, async (req, res) => {
+    const { id } = req.params;
+    const { title, body } = req.body;
+    if (!title || !body) return res.status(400).json({ error: 'Title and body are required.' });
+    try {
+        const result = await pool.query(
+            'UPDATE post SET title=$1, body=$2 WHERE id=$3 RETURNING *',
+            [title.trim(), body.trim(), id]
+        );
+        if (result.rowCount === 0) return res.status(404).json({ error: 'Not Found' });
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+app.delete('/api/posts/:id', requireAuth, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query('DELETE FROM post WHERE id=$1 RETURNING id', [id]);
+        if (result.rowCount === 0) return res.status(404).json({ error: 'Not Found' });
+        res.json({ success: true });
+    } catch (error) {
         res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
 });

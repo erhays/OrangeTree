@@ -308,13 +308,50 @@
     border-bottom: none;
 }
 
+.customer-appt-row {
+    cursor: pointer;
+}
+
 .customer-appt-table tbody tr:hover {
-    background-color: #fafafa;
+    background-color: #f0f4ff;
 }
 
 .customer-appt-notes {
     color: #666;
     max-width: 300px;
+}
+
+@media (max-width: 640px) {
+    .customer-appt-table thead { display: none; }
+
+    .customer-appt-table,
+    .customer-appt-table tbody { display: block; }
+
+    .customer-appt-table tbody tr {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem 0.6rem;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .customer-appt-table tbody tr:last-child { border-bottom: none; }
+
+    .customer-appt-table td {
+        padding: 0;
+        border: none;
+        font-size: 0.875rem;
+    }
+
+    /* Date/time: full width → own line */
+    .customer-appt-table td:first-child {
+        flex: 0 0 100%;
+        font-weight: 600;
+        color: #111;
+    }
+
+    .customer-appt-notes { max-width: none; }
 }
 
 /* Appointments */
@@ -978,4 +1015,54 @@
     gap: 0.75rem;
     justify-content: center;
     flex-wrap: wrap;
+}
+
+/* ── Latest / Posts section ─────────────────────────────── */
+.home-latest {
+    background: #f5f6fa;
+    padding: 4rem 2rem;
+}
+
+.home-latest-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.home-latest-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.home-latest-date {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+.home-latest-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.home-latest-body {
+    font-size: 0.875rem;
+    color: #555;
+    line-height: 1.55;
+    margin: 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
 }

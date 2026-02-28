@@ -16,7 +16,7 @@ const appTree = (
 );
 
 // Hydrate pre-rendered HTML if present (home page), otherwise plain mount
-if (rootEl.hasChildNodes()) {
+if (rootEl.children.length > 0) {
   hydrateRoot(rootEl, appTree);
 } else {
   createRoot(rootEl).render(appTree);

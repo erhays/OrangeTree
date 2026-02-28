@@ -43,6 +43,22 @@ export default function AppointmentDetail() {
             .finally(() => setLoading(false));
     }, [id]);
 
+    const handleComplete = async () => {
+        try {
+            await axios.put(`/api/appointments/${id}`, {
+                customerId: appt.customer_id,
+                dateTime: appt.date_time,
+                serviceType: appt.service_type,
+                status: 'Completed',
+                notes: appt.notes,
+            });
+            setAppt(prev => ({ ...prev, status: 'Completed' }));
+            toast.success('Appointment marked as completed.');
+        } catch {
+            toast.error('Failed to update appointment.');
+        }
+    };
+
     const handleDelete = async () => {
         try {
             await axios.delete(`/api/appointments/${id}`);
@@ -121,6 +137,14 @@ export default function AppointmentDetail() {
                     </div>
                 </div>
             </div>
+
+            {appt.status !== 'Completed' && (
+                <div style={{ marginTop: '1rem' }}>
+                    <button className="home-contact-btn" style={{ alignSelf: 'auto' }} onClick={handleComplete}>
+                        Mark as Completed
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

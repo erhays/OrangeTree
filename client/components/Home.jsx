@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import heroBg from '../assets/hero-image.jpg';
+
+const formatDate = (dt) => new Date(dt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 const SERVICES = [
     {
@@ -25,6 +27,11 @@ const SERVICES = [
 export default function Home() {
     const [form, setForm] = useState({ name: '', email: '', message: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [posts, setPosts] = useState([]);
+
+    useEffect(() => {
+        axios.get('/api/posts').then(res => setPosts(res.data.slice(0, 3))).catch(() => {});
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -70,6 +77,22 @@ export default function Home() {
                     ))}
                 </div>
             </section>
+
+            {/* Latest */}
+            {posts.length > 0 && (
+                <section className="home-latest">
+                    <h2 className="home-section-title">Latest</h2>
+                    <div className="home-latest-grid">
+                        {posts.map(post => (
+                            <div key={post.id} className="home-latest-card">
+                                <p className="home-latest-date">{formatDate(post.created_at)}</p>
+                                <h3 className="home-latest-title">{post.title}</h3>
+                                <p className="home-latest-body">{post.body}</p>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
 
             {/* Contact */}
             <section className="home-contact">
