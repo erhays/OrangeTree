@@ -26,6 +26,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: orangetree
       PORT: 5000
+    volumes:
+      - ./uploads:/app/uploads
 
   adminer:
     image: adminer

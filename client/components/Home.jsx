@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import heroBg from '../assets/hero-image.jpg';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const formatDate = (dt) => new Date(dt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -24,14 +24,62 @@ const SERVICES = [
     },
 ];
 
+const DEFAULT_HERO = 'We bring the shine back to your vehicle — inside and out. Serving the area with premium detailing at competitive prices.';
+
+const slideVariants = {
+    enter: (dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 }),
+};
+
 export default function Home() {
     const [form, setForm] = useState({ name: '', email: '', message: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [posts, setPosts] = useState([]);
+    const [heroDescription, setHeroDescription] = useState(DEFAULT_HERO);
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [direction, setDirection] = useState(1);
+    const [paused, setPaused] = useState(false);
+    const intervalRef = useRef(null);
+
+    const startCarousel = (count) => {
+        clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(() => {
+            setDirection(1);
+            setActiveIndex(i => (i + 1) % count);
+        }, 5000);
+    };
+
+    const goPrev = () => {
+        setDirection(-1);
+        setActiveIndex(i => (i - 1 + posts.length) % posts.length);
+        setPaused(true);
+    };
+
+    const goNext = () => {
+        setDirection(1);
+        setActiveIndex(i => (i + 1) % posts.length);
+        setPaused(true);
+    };
 
     useEffect(() => {
-        axios.get('/api/posts').then(res => setPosts(res.data.slice(0, 3))).catch(() => {});
+        axios.get('/api/posts').then(res => {
+            const p = res.data.slice(0, 3);
+            setPosts(p);
+            if (p.length > 1) startCarousel(p.length);
+        }).catch(() => {});
+        axios.get('/api/settings/hero').then(res => {
+            if (res.data.heroDescription) setHeroDescription(res.data.heroDescription);
+        }).catch(() => {});
+        return () => clearInterval(intervalRef.current);
     }, []);
+
+    useEffect(() => {
+        if (posts.length > 1) {
+            if (paused) clearInterval(intervalRef.current);
+            else startCarousel(posts.length);
+        }
+    }, [paused, posts.length]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -55,12 +103,9 @@ export default function Home() {
     return (
         <div className="home-page">
             {/* Hero */}
-            <section className="home-hero" style={{ backgroundImage: `url(${heroBg})` }}>
+            <section className="home-hero" style={{ backgroundImage: 'url(/hero-image.jpg)' }}>
                 <h1 className="home-hero-title">Professional Auto Detailing</h1>
-                <p className="home-hero-sub">
-                    We bring the shine back to your vehicle — inside and out.
-                    Serving the area with premium detailing at competitive prices.
-                </p>
+                <p className="home-hero-sub">{heroDescription}</p>
                 <Link to="/book" className="home-hero-btn">Book an Appointment</Link>
             </section>
 
@@ -78,18 +123,54 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Latest */}
+            {/* Latest — carousel */}
             {posts.length > 0 && (
-                <section className="home-latest">
+                <section
+                    className="home-latest"
+                    onMouseEnter={() => setPaused(true)}
+                    onMouseLeave={() => setPaused(false)}
+                >
                     <h2 className="home-section-title">Latest</h2>
-                    <div className="home-latest-grid">
-                        {posts.map(post => (
-                            <div key={post.id} className="home-latest-card">
-                                <p className="home-latest-date">{formatDate(post.created_at)}</p>
-                                <h3 className="home-latest-title">{post.title}</h3>
-                                <p className="home-latest-body">{post.body}</p>
+                    <div className="home-latest-carousel">
+                        <div className="home-latest-inner">
+                            {posts.length > 1 && (
+                                <button className="home-latest-nav" onClick={goPrev} aria-label="Previous post">&#8249;</button>
+                            )}
+                            <div className="home-latest-track">
+                                <AnimatePresence initial={false} custom={direction}>
+                                    <motion.div
+                                        key={activeIndex}
+                                        className="home-latest-slide"
+                                        custom={direction}
+                                        variants={slideVariants}
+                                        initial="enter"
+                                        animate="center"
+                                        exit="exit"
+                                        transition={{ duration: 0.35, ease: 'easeInOut' }}
+                                    >
+                                        <p className="home-latest-date">{formatDate(posts[activeIndex].created_at)}</p>
+                                        <h3 className="home-latest-title">{posts[activeIndex].title}</h3>
+                                        <div className="home-latest-body rich-text" dangerouslySetInnerHTML={{ __html: posts[activeIndex].body }} />
+                                    </motion.div>
+                                </AnimatePresence>
                             </div>
-                        ))}
+                            {posts.length > 1 && (
+                                <button className="home-latest-nav" onClick={goNext} aria-label="Next post">&#8250;</button>
+                            )}
+                        </div>
+
+                        {posts.length > 1 && (
+                            <div className="home-latest-dots">
+                                {posts.map((_, i) => (
+                                    <button
+                                        key={i}
+                                        className={`home-latest-dot${i === activeIndex ? ' active' : ''}`}
+                                        onClick={() => { setDirection(i > activeIndex ? 1 : -1); setActiveIndex(i); setPaused(true); }}
+                                        aria-label={`Go to post ${i + 1}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </section>
             )}

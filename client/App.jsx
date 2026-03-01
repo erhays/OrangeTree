@@ -15,6 +15,7 @@ import BookAppointment from './components/BookAppointment'
 import Insights from './components/Insights'
 import ContentPage from './components/ContentPage'
 import Settings from './components/Settings'
+import ChangePassword from './components/ChangePassword'
 import { Route, Routes, Navigate } from 'react-router'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -44,6 +45,7 @@ function App() {
           <Route path="insights" element={<Insights />} />
           <Route path="content" element={<ContentPage />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="settings/change-password" element={<ChangePassword />} />
         </Route>
         </Route>
       </Routes>

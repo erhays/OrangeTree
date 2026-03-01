@@ -139,8 +139,8 @@ export default function AppointmentDetail() {
             </div>
 
             {appt.status !== 'Completed' && (
-                <div style={{ marginTop: '1rem' }}>
-                    <button className="home-contact-btn" style={{ alignSelf: 'auto' }} onClick={handleComplete}>
+                <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end', paddingRight: '2rem' }}>
+                    <button className="appt-detail-complete-btn" onClick={handleComplete}>
                         Mark as Completed
                     </button>
                 </div>

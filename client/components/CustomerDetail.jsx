@@ -17,6 +17,10 @@ function formatDateTime(dt) {
     });
 }
 
+function formatDate(dt) {
+    return new Date(dt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 export default function CustomerDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -72,6 +76,31 @@ export default function CustomerDetail() {
                     <div className="customer-detail-field">
                         <span className="customer-detail-label">Phone</span>
                         <span className="customer-detail-value">{customer.phone || '—'}</span>
+                    </div>
+                    <div className="customer-detail-field">
+                        <span className="customer-detail-label">Address</span>
+                        <span className="customer-detail-value">
+                            {(() => {
+                                const cityState = [customer.city, customer.state].filter(Boolean).join(', ');
+                                const line2 = [cityState, customer.zip].filter(Boolean).join(' ');
+                                return [customer.address, line2].filter(Boolean).join(', ') || '—';
+                            })()}
+                        </span>
+                    </div>
+                    <div className="customer-detail-field">
+                        <span className="customer-detail-label">Customer Since</span>
+                        <span className="customer-detail-value">{customer.created_at ? formatDate(customer.created_at) : '—'}</span>
+                    </div>
+                    <div className="customer-detail-field">
+                        <span className="customer-detail-label">Last Serviced</span>
+                        <span className="customer-detail-value">
+                            {(() => {
+                                const completed = appointments
+                                    .filter(a => a.status === 'Completed')
+                                    .sort((a, b) => new Date(b.date_time) - new Date(a.date_time));
+                                return completed.length > 0 ? formatDate(completed[0].date_time) : '—';
+                            })()}
+                        </span>
                     </div>
                 </div>
             </div>

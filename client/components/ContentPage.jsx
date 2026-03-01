@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import RichTextEditor from './RichTextEditor';
 
 const formatDate = (dt) => new Date(dt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -15,6 +16,8 @@ const cancelBtnStyle = {
     cursor: 'pointer',
 };
 
+const DEFAULT_HERO = 'We bring the shine back to your vehicle — inside and out. Serving the area with premium detailing at competitive prices.';
+
 export default function ContentPage() {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -22,6 +25,8 @@ export default function ContentPage() {
     const [editPost, setEditPost] = useState(null);
     const [form, setForm] = useState({ title: '', body: '' });
     const [submitting, setSubmitting] = useState(false);
+    const [heroDescription, setHeroDescription] = useState('');
+    const [savingHero, setSavingHero] = useState(false);
 
     const loadPosts = () => {
         axios.get('/api/posts')
@@ -30,7 +35,12 @@ export default function ContentPage() {
             .finally(() => setLoading(false));
     };
 
-    useEffect(() => { loadPosts(); }, []);
+    useEffect(() => {
+        loadPosts();
+        axios.get('/api/settings/hero')
+            .then(res => setHeroDescription(res.data.heroDescription || DEFAULT_HERO))
+            .catch(() => setHeroDescription(DEFAULT_HERO));
+    }, []);
 
     const openNew = () => {
         setEditPost(null);
@@ -46,6 +56,8 @@ export default function ContentPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const strippedBody = form.body.replace(/<[^>]*>/g, '').trim();
+        if (!strippedBody) { toast.error('Post body cannot be empty.'); return; }
         setSubmitting(true);
         try {
             if (editPost) {
@@ -64,6 +76,19 @@ export default function ContentPage() {
         }
     };
 
+    const handleSaveHero = async (e) => {
+        e.preventDefault();
+        setSavingHero(true);
+        try {
+            await axios.put('/api/settings/hero', { heroDescription });
+            toast.success('Hero description updated.');
+        } catch {
+            toast.error('Failed to update hero description.');
+        } finally {
+            setSavingHero(false);
+        }
+    };
+
     const handleDelete = async (id) => {
         try {
             await axios.delete(`/api/posts/${id}`);
@@ -76,10 +101,31 @@ export default function ContentPage() {
 
     return (
         <div style={{ padding: '2rem', maxWidth: '680px' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#111827', margin: '0 0 1.5rem' }}>Content</h2>
+
+            {/* Hero Description */}
+            <h3 style={{ fontSize: '0.95rem', fontWeight: 600, color: '#111827', margin: '0 0 1rem' }}>Hero Description</h3>
+            <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 2px 6px rgba(0,0,0,0.06)', marginBottom: '1.5rem' }}>
+                <form onSubmit={handleSaveHero} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <textarea
+                        className="home-contact-input home-contact-textarea"
+                        rows={3}
+                        value={heroDescription}
+                        onChange={e => setHeroDescription(e.target.value)}
+                        placeholder="Enter hero description…"
+                    />
+                    <div>
+                        <button type="submit" className="customer-list-add-btn" disabled={savingHero}>
+                            {savingHero ? 'Saving…' : 'Save'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#111827', margin: 0 }}>Content</h2>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 600, color: '#111827', margin: 0 }}>Posts</h3>
                 {!showForm && (
-                    <button className="home-contact-btn" style={{ alignSelf: 'auto' }} onClick={openNew}>
+                    <button className="customer-list-add-btn" onClick={openNew}>
                         + New Post
                     </button>
                 )}
@@ -101,13 +147,9 @@ export default function ContentPage() {
                     </div>
                     <div className="home-contact-field">
                         <label className="home-contact-label">Body</label>
-                        <textarea
-                            className="home-contact-input home-contact-textarea"
-                            rows={6}
-                            placeholder="Write your post…"
+                        <RichTextEditor
                             value={form.body}
-                            onChange={e => setForm(p => ({ ...p, body: e.target.value }))}
-                            required
+                            onChange={body => setForm(p => ({ ...p, body }))}
                         />
                     </div>
                     <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
@@ -133,9 +175,11 @@ export default function ContentPage() {
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <p style={{ fontSize: '1rem', fontWeight: 600, color: '#111827', margin: '0 0 0.2rem' }}>{post.title}</p>
                                     <p style={{ fontSize: '0.75rem', color: '#9ca3af', margin: '0 0 0.5rem' }}>{formatDate(post.created_at)}</p>
-                                    <p style={{ fontSize: '0.875rem', color: '#555', margin: 0, lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                                        {post.body}
-                                    </p>
+                                    <div
+                                        className="rich-text"
+                                        style={{ fontSize: '0.875rem', color: '#555', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
+                                        dangerouslySetInnerHTML={{ __html: post.body }}
+                                    />
                                 </div>
                                 <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
                                     <button

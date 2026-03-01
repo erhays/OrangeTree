@@ -73,6 +73,7 @@ export default function CustomerList() {
             <div className="customer-list-header">
                 <span>Name</span>
                 <span>Email</span>
+                <span>Since</span>
                 <span></span>
             </div>
 
@@ -83,6 +84,9 @@ export default function CustomerList() {
                             {customer.first_name} {customer.last_name}
                         </span>
                         <span className="customer-list-email">{customer.email}</span>
+                        <span style={{ color: '#9ca3af', fontSize: '0.875rem' }}>
+                            {customer.created_at ? new Date(customer.created_at).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : '—'}
+                        </span>
                         <button
                             className="customer-list-delete-btn"
                             onClick={(e) => { e.stopPropagation(); handleDelete(customer.id, `${customer.first_name} ${customer.last_name}`); }}

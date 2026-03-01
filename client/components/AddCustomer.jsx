@@ -4,13 +4,20 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 
 export default function AddCustomer() {
-    const [customer, setCustomer] = useState({ firstName: '', lastName: '', email: '', phone: '' });
+    const [customer, setCustomer] = useState({ firstName: '', lastName: '', email: '', phone: '', address: '', city: '', state: '', zip: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
+    const formatPhone = (value) => {
+        const digits = value.replace(/\D/g, '').slice(0, 10);
+        if (digits.length < 4) return digits;
+        if (digits.length < 7) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+        return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setCustomer(prev => ({ ...prev, [name]: value }));
+        setCustomer(prev => ({ ...prev, [name]: name === 'phone' ? formatPhone(value) : value }));
     };
 
     const handleSubmit = async (e) => {
@@ -80,8 +87,28 @@ export default function AddCustomer() {
                             name="phone"
                             value={customer.phone}
                             onChange={handleChange}
-                            placeholder="(555) 000-0000"
+                            placeholder="(555) 555-5555"
                         />
+                    </div>
+                </div>
+
+                <div className="home-contact-field">
+                    <label className="home-contact-label">Street Address</label>
+                    <input className="home-contact-input" type="text" name="address" value={customer.address} onChange={handleChange} placeholder="123 Main St" />
+                </div>
+
+                <div className="home-contact-row" style={{ gridTemplateColumns: '2fr 1fr 1fr' }}>
+                    <div className="home-contact-field">
+                        <label className="home-contact-label">City</label>
+                        <input className="home-contact-input" type="text" name="city" value={customer.city} onChange={handleChange} placeholder="Springfield" />
+                    </div>
+                    <div className="home-contact-field">
+                        <label className="home-contact-label">State</label>
+                        <input className="home-contact-input" type="text" name="state" value={customer.state} onChange={handleChange} placeholder="IL" />
+                    </div>
+                    <div className="home-contact-field">
+                        <label className="home-contact-label">Zip</label>
+                        <input className="home-contact-input" type="text" name="zip" value={customer.zip} onChange={handleChange} placeholder="62701" />
                     </div>
                 </div>
 

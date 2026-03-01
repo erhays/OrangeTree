@@ -4,6 +4,10 @@ CREATE TABLE IF NOT EXISTS customer (
     last_name  TEXT NOT NULL,
     email      TEXT NOT NULL UNIQUE,
     phone      TEXT,
+    address    TEXT,
+    city       TEXT,
+    state      TEXT,
+    zip        TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -29,6 +33,8 @@ CREATE TABLE IF NOT EXISTS users (
     id            SERIAL PRIMARY KEY,
     email         TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
+    name          TEXT,
+    avatar_url    TEXT,
     created_at    TIMESTAMP DEFAULT NOW()
 );
 
@@ -38,6 +44,15 @@ CREATE TABLE IF NOT EXISTS post (
     body       TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS site_settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT
+);
+
+INSERT INTO site_settings (key, value) VALUES
+    ('hero_description', 'We bring the shine back to your vehicle — inside and out. Serving the area with premium detailing at competitive prices.')
+ON CONFLICT (key) DO NOTHING;
 
 INSERT INTO post (title, body) SELECT
     'Welcome to OrangeTree Detailing',

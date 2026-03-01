@@ -5,7 +5,7 @@ import axios from 'axios'
 
 function Header() {
     const [menuOpen, setMenuOpen] = useState(false);
-    const [authed, setAuthed] = useState(false);
+    const [authed, setAuthed] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -19,8 +19,8 @@ function Header() {
         navigate('/');
     };
 
-    const linkClass = 'px-3 py-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md text-sm transition';
-    const mobileLinkClass = 'flex items-center gap-2 px-4 py-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded transition w-full text-left';
+    const linkClass = 'px-3 py-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md text-sm font-normal transition';
+    const mobileLinkClass = 'flex items-center gap-2 px-4 py-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded font-normal transition w-full text-left';
 
     return (
         <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-200 relative">
@@ -33,12 +33,13 @@ function Header() {
 
                     {/* Desktop Menu */}
                     <div className="hidden md:flex md:items-center md:space-x-8">
-                        {authed ? (
+                        {authed === true && (
                             <>
                                 <Link to="/dashboard" className={linkClass}>Dashboard</Link>
                                 <button onClick={handleLogout} className={linkClass}>Logout</button>
                             </>
-                        ) : (
+                        )}
+                        {authed === false && (
                             <Link to="/login" className={linkClass}>
                                 <svg xmlns="http://www.w3.org/2000/svg" className="inline-block w-3.5 h-3.5 mr-1 -mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                                 Login
@@ -77,12 +78,13 @@ function Header() {
                             exit={{ opacity: 0, y: -6 }}
                             transition={{ duration: 0.18, ease: 'easeOut' }}
                         >
-                            {authed ? (
+                            {authed === true && (
                                 <>
                                     <Link to="/dashboard" className={mobileLinkClass} onClick={() => setMenuOpen(false)}>Dashboard</Link>
                                     <button onClick={handleLogout} className={mobileLinkClass}>Logout</button>
                                 </>
-                            ) : (
+                            )}
+                            {authed === false && (
                                 <Link to="/login" className={mobileLinkClass} onClick={() => setMenuOpen(false)}>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                                     Login

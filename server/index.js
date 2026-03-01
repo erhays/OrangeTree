@@ -5,7 +5,8 @@ import pkg from 'pg';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { existsSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
+import multer from 'multer';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import bcrypt from 'bcrypt';
@@ -15,6 +16,23 @@ dotenv.config();
 const { Pool } = pkg;
 const app = express();
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Uploads directory (persisted via Docker volume in production)
+const uploadDir = join(__dirname, 'uploads');
+mkdirSync(uploadDir, { recursive: true });
+
+const avatarStorage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename: (req, file, cb) => {
+        const ext = file.originalname.split('.').pop().toLowerCase();
+        cb(null, `avatar-${req.session?.userId}-${Date.now()}.${ext}`);
+    },
+});
+const uploadAvatar = multer({
+    storage: avatarStorage,
+    limits: { fileSize: 2 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => cb(null, /^image\//.test(file.mimetype)),
+});
 
 app.use(cors());           
 app.use(express.json());
@@ -31,13 +49,23 @@ const pool = new Pool({
   connectionTimeoutMillis: 2000,
 });
 
-// Test connection on startup
+// Test connection and run startup migrations
 pool.connect((err) => {
   if (err) {
     console.error('Failed to connect to PostgreSQL', err);
     process.exit(1);
   } else {
     console.log('Connected to PostgreSQL!');
+    pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS name TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+      ALTER TABLE customer ADD COLUMN IF NOT EXISTS address TEXT;
+      ALTER TABLE customer ADD COLUMN IF NOT EXISTS city TEXT;
+      ALTER TABLE customer ADD COLUMN IF NOT EXISTS state TEXT;
+      ALTER TABLE customer ADD COLUMN IF NOT EXISTS zip TEXT;
+      CREATE TABLE IF NOT EXISTS site_settings (key TEXT PRIMARY KEY, value TEXT);
+      INSERT INTO site_settings (key, value) VALUES ('hero_description', 'We bring the shine back to your vehicle — inside and out. Serving the area with premium detailing at competitive prices.') ON CONFLICT (key) DO NOTHING;
+    `).catch(e => console.error('Migration error:', e));
   }
 });
 
@@ -85,11 +113,16 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-app.get('/api/me', (req, res) => {
+app.get('/api/me', async (req, res) => {
     if (!req.session?.userId) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
-    res.json({ id: req.session.userId, email: req.session.email });
+    const result = await pool.query(
+        'SELECT id, email, name, avatar_url FROM users WHERE id = $1',
+        [req.session.userId]
+    );
+    const user = result.rows[0];
+    res.json({ id: user.id, email: user.email, name: user.name, avatarUrl: user.avatar_url });
 });
 
 app.post('/api/logout', (req, res) => {
@@ -98,7 +131,55 @@ app.post('/api/logout', (req, res) => {
     });
 });
 
+app.put('/api/me/profile', requireAuth, async (req, res) => {
+    const { name } = req.body;
+    await pool.query(
+        'UPDATE users SET name = $1 WHERE id = $2',
+        [name?.trim() || null, req.session.userId]
+    );
+    res.json({ success: true });
+});
+
+app.post('/api/me/avatar', requireAuth, uploadAvatar.single('avatar'), async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
+    const avatarUrl = `/uploads/${req.file.filename}`;
+    await pool.query(
+        'UPDATE users SET avatar_url = $1 WHERE id = $2',
+        [avatarUrl, req.session.userId]
+    );
+    res.json({ avatarUrl });
+});
+
+app.put('/api/me/password', requireAuth, async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword)
+        return res.status(400).json({ error: 'Both fields are required.' });
+    if (newPassword.length < 8)
+        return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+    try {
+        const result = await pool.query('SELECT password_hash FROM users WHERE id = $1', [req.session.userId]);
+        const match = await bcrypt.compare(currentPassword, result.rows[0].password_hash);
+        if (!match) return res.status(401).json({ error: 'Current password is incorrect.' });
+        const hash = await bcrypt.hash(newPassword, 12);
+        await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, req.session.userId]);
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to update password.' });
+    }
+});
+
 // Create a new user (admin only)
+app.get('/api/users', requireAuth, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT id, email, name, created_at FROM users ORDER BY created_at ASC');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch users.' });
+    }
+});
+
 app.post('/api/users', requireAuth, async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Email and password are required.' });
@@ -117,7 +198,7 @@ app.post('/api/users', requireAuth, async (req, res) => {
 // Get all customers API endpoint
 app.get('/api/customers', requireAuth, async (req, res) => {
     try {
-        const result = await pool.query('SELECT id, first_name, last_name, email, phone, created_at FROM customer ORDER BY id ASC');
+        const result = await pool.query('SELECT id, first_name, last_name, email, phone, address, city, state, zip, created_at FROM customer ORDER BY id ASC');
 
         res.json(result.rows); 
     } catch (error) {
@@ -131,7 +212,7 @@ app.get('/api/customers', requireAuth, async (req, res) => {
 
 // Add-customer API endpoint
 app.post('/api/customers', requireAuth, async (req, res) => {
-  const { firstName, lastName, email, phone } = req.body;
+  const { firstName, lastName, email, phone, address, city, state, zip } = req.body;
 
   if (!firstName || !lastName || !email) {
     return res.status(400).json({
@@ -142,10 +223,10 @@ app.post('/api/customers', requireAuth, async (req, res) => {
 
   try {
     const result = await pool.query(`
-        INSERT INTO customer (first_name, last_name, email, phone)
-        VALUES ($1, $2, $3, $4)
-        RETURNING id, first_name, last_name, email, phone
-      `, [firstName.trim(), lastName.trim(), email.trim(), phone?.trim() || null]);
+        INSERT INTO customer (first_name, last_name, email, phone, address, city, state, zip)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING id, first_name, last_name, email, phone, address, city, state, zip
+      `, [firstName.trim(), lastName.trim(), email.trim(), phone?.trim() || null, address?.trim() || null, city?.trim() || null, state?.trim() || null, zip?.trim() || null]);
 
       res.status(201).json({
         success: true,
@@ -166,7 +247,7 @@ app.get('/api/customers/:id', requireAuth, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query(
-            'SELECT id, first_name, last_name, email, phone FROM customer WHERE id = $1',
+            'SELECT id, first_name, last_name, email, phone, address, city, state, zip, created_at FROM customer WHERE id = $1',
             [id]
         );
         if (result.rowCount === 0) {
@@ -182,15 +263,15 @@ app.get('/api/customers/:id', requireAuth, async (req, res) => {
 // Update customer API endpoint
 app.put('/api/customers/:id', requireAuth, async (req, res) => {
     const { id } = req.params;
-    const { firstName, lastName, email, phone } = req.body;
+    const { firstName, lastName, email, phone, address, city, state, zip } = req.body;
     if (!firstName || !lastName || !email) {
         return res.status(400).json({ error: 'Bad Request', message: 'First name, last name, and email are required.' });
     }
     try {
         const result = await pool.query(
-            `UPDATE customer SET first_name = $1, last_name = $2, email = $3, phone = $4
-             WHERE id = $5 RETURNING id, first_name, last_name, email, phone`,
-            [firstName.trim(), lastName.trim(), email.trim(), phone?.trim() || null, id]
+            `UPDATE customer SET first_name = $1, last_name = $2, email = $3, phone = $4, address = $5, city = $6, state = $7, zip = $8
+             WHERE id = $9 RETURNING id, first_name, last_name, email, phone, address, city, state, zip`,
+            [firstName.trim(), lastName.trim(), email.trim(), phone?.trim() || null, address?.trim() || null, city?.trim() || null, state?.trim() || null, zip?.trim() || null, id]
         );
         if (result.rowCount === 0) {
             return res.status(404).json({ error: 'Not Found', message: 'Customer not found.' });
@@ -410,6 +491,30 @@ app.delete('/api/posts/:id', requireAuth, async (req, res) => {
     }
 });
 
+// Site settings
+app.get('/api/settings/hero', async (_req, res) => {
+    try {
+        const result = await pool.query("SELECT value FROM site_settings WHERE key = 'hero_description'");
+        res.json({ heroDescription: result.rows[0]?.value || '' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch hero description.' });
+    }
+});
+
+app.put('/api/settings/hero', requireAuth, async (req, res) => {
+    const { heroDescription } = req.body;
+    if (typeof heroDescription !== 'string') return res.status(400).json({ error: 'heroDescription required.' });
+    try {
+        await pool.query(
+            "INSERT INTO site_settings (key, value) VALUES ('hero_description', $1) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+            [heroDescription.trim()]
+        );
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update hero description.' });
+    }
+});
+
 // Submit contact inquiry (public)
 app.post('/api/contact', async (req, res) => {
     const { name, email, message } = req.body;
@@ -458,6 +563,9 @@ app.post('/api/bookings', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
 });
+
+// Serve uploaded files
+app.use('/uploads', express.static(uploadDir));
 
 // Serve built React app in production (Docker)
 const publicPath = join(__dirname, 'public');
