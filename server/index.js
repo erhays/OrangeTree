@@ -10,6 +10,8 @@ import multer from 'multer';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import bcrypt from 'bcrypt';
+import { Resend } from 'resend';
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 dotenv.config();
 
@@ -558,6 +560,21 @@ app.post('/api/bookings', async (req, res) => {
             [customerId, dateTime, serviceType, 'Scheduled', notes?.trim() || null]
         );
         res.status(201).json({ success: true, id: apptResult.rows[0].id });
+
+        resend.emails.send({
+            from: 'OrangeTree Detailing <notifications@orangetree.com>',
+            to: process.env.OWNER_EMAIL,
+            subject: `New Booking: ${serviceType} — ${firstName} ${lastName}`,
+            html: `
+                <h2>New Appointment Booked</h2>
+                <p><strong>Customer:</strong> ${firstName} ${lastName}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+                <p><strong>Service:</strong> ${serviceType}</p>
+                <p><strong>Date/Time:</strong> ${dateTime}</p>
+                <p><strong>Notes:</strong> ${notes || 'None'}</p>
+            `
+        }).catch(err => console.error('Email send failed:', err));
     } catch (error) {
         console.error('Error creating booking:', error);
         res.status(500).json({ error: 'Internal Server Error', message: error.message });
