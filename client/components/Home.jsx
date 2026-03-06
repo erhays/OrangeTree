@@ -103,10 +103,17 @@ export default function Home() {
     return (
         <div className="home-page">
             {/* Hero */}
-            <section className="home-hero" style={{ backgroundImage: 'url(/hero-image.jpg)' }}>
-                <h1 className="home-hero-title">Professional Auto Detailing</h1>
-                <p className="home-hero-sub">{heroDescription}</p>
-                <Link to="/book" className="home-hero-btn">Book an Appointment</Link>
+            <section className="home-hero">
+                <div className="home-hero-content">
+                    <h1 className="home-hero-title">Scottsdale's premier mobile detailing specialists.</h1>
+                    <Link to="/book" className="home-hero-btn">BOOK NOW</Link>
+                </div>
+                <div className="home-hero-img-wrap">
+                    <img src="/hero-car.jpg" alt="Detail car" className="home-hero-img" />
+                </div>
+                <button className="home-hero-scroll" onClick={() => document.querySelector('.home-services')?.scrollIntoView({ behavior: 'smooth' })} aria-label="Scroll down">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
             </section>
 
             {/* Services */}
