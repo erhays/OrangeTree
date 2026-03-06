@@ -28,6 +28,7 @@ services:
       PORT: 5000
       RESEND_API_KEY: ${RESEND_API_KEY}
       OWNER_EMAIL: ${OWNER_EMAIL}
+      SESSION_SECRET: ${SESSION_SECRET}
     volumes:
       - ./uploads:/app/uploads
 
