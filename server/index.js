@@ -11,9 +11,9 @@ import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import bcrypt from 'bcrypt';
 import { Resend } from 'resend';
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 dotenv.config();
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const { Pool } = pkg;
 const app = express();
