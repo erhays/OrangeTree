@@ -562,7 +562,7 @@ app.post('/api/bookings', async (req, res) => {
         res.status(201).json({ success: true, id: apptResult.rows[0].id });
 
         resend?.emails.send({
-            from: 'OrangeTree Detailing <notifications@orangetree.com>',
+            from: 'OrangeTree Detailing <notifications@orangetreeautodetailing.com>',
             to: process.env.OWNER_EMAIL,
             subject: `New Booking: ${serviceType} — ${firstName} ${lastName}`,
             html: `
