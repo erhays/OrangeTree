@@ -13,7 +13,7 @@ import bcrypt from 'bcrypt';
 import { Resend } from 'resend';
 
 dotenv.config();
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 const { Pool } = pkg;
 const app = express();
@@ -561,7 +561,7 @@ app.post('/api/bookings', async (req, res) => {
         );
         res.status(201).json({ success: true, id: apptResult.rows[0].id });
 
-        resend.emails.send({
+        resend?.emails.send({
             from: 'OrangeTree Detailing <notifications@orangetree.com>',
             to: process.env.OWNER_EMAIL,
             subject: `New Booking: ${serviceType} — ${firstName} ${lastName}`,
