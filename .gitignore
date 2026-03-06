@@ -33,3 +33,4 @@ server/prisma/migrations/
 server/prisma/migration_lock.toml
 server/prisma/schema.prisma
 server/prisma.config.ts
+/Design Files/
