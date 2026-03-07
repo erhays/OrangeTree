@@ -14,11 +14,25 @@ const slideVariants = {
     exit: (dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 }),
 };
 
+function ReviewAvatar({ r }) {
+    const name = r.authorAttribution?.displayName?.text;
+    const photo = r.authorAttribution?.photoUri;
+    const [failed, setFailed] = useState(false);
+    if (photo && !failed) {
+        return <img src={photo} alt={name} className="home-review-avatar" onError={() => setFailed(true)} referrerPolicy="no-referrer" />;
+    }
+    return <div className="home-review-avatar home-review-avatar-fallback">{name?.[0] ?? '?'}</div>;
+}
+
 export default function Home() {
     const [form, setForm] = useState({ name: '', email: '', message: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [posts, setPosts] = useState([]);
     const [reviews, setReviews] = useState(null);
+    const [reviewIndex, setReviewIndex] = useState(0);
+    const [reviewDirection, setReviewDirection] = useState(1);
+    const [reviewPaused, setReviewPaused] = useState(false);
+    const reviewIntervalRef = useRef(null);
     const [heroDescription, setHeroDescription] = useState(DEFAULT_HERO);
     const [activeIndex, setActiveIndex] = useState(0);
     const [direction, setDirection] = useState(1);
@@ -47,6 +61,7 @@ export default function Home() {
 
     useEffect(() => {
         axios.get('/api/reviews').then(res => setReviews(res.data)).catch(() => {});
+
         axios.get('/api/posts').then(res => {
             const p = res.data.slice(0, 3);
             setPosts(p);
@@ -69,6 +84,17 @@ export default function Home() {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
     };
+
+    useEffect(() => {
+        if (!reviews?.reviews?.length) return;
+        const len = reviews.reviews.length;
+        if (reviewPaused) {
+            clearInterval(reviewIntervalRef.current);
+        } else {
+            reviewIntervalRef.current = setInterval(() => { setReviewDirection(1); setReviewIndex(i => (i + 1) % len); }, 5000);
+        }
+        return () => clearInterval(reviewIntervalRef.current);
+    }, [reviews, reviewPaused]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -95,91 +121,66 @@ export default function Home() {
                 <div className="home-hero-img-wrap">
                     <img src="/hero-car.jpg" alt="Detail car" className="home-hero-img" />
                 </div>
-                <button className="home-hero-scroll" onClick={() => document.querySelector('.home-latest, .home-contact')?.scrollIntoView({ behavior: 'smooth' })} aria-label="Scroll down">
+                <button className="home-hero-scroll" onClick={() => document.querySelector('.home-reviews, .home-latest, .home-contact')?.scrollIntoView({ behavior: 'smooth' })} aria-label="Scroll down">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
+                <div className="home-hero-chevron">
+                    <svg viewBox="0 0 1440 70" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="0,70 720,0 1440,70" fill="#fff"/>
+                    </svg>
+                </div>
             </section>
 
             {/* Reviews */}
-            {reviews?.reviews?.length > 0 && (
-                <section className="home-reviews">
-                    <h2 className="home-section-title">What Our Customers Say</h2>
-                    {reviews.rating && (
-                        <p className="home-reviews-summary">
-                            <span className="home-reviews-star">★</span> {reviews.rating.toFixed(1)} · {reviews.userRatingCount} reviews on Google
-                        </p>
-                    )}
-                    <div className="home-reviews-grid">
-                        {reviews.reviews.map((r, i) => (
-                            <div key={i} className="home-review-card">
-                                <div className="home-review-header">
-                                    {r.authorPhoto
-                                        ? <img src={r.authorPhoto} alt={r.authorAttribution?.displayName?.text} className="home-review-avatar" />
-                                        : <div className="home-review-avatar home-review-avatar-fallback">{r.authorAttribution?.displayName?.text?.[0] ?? '?'}</div>
-                                    }
-                                    <div>
-                                        <p className="home-review-author">{r.authorAttribution?.displayName?.text}</p>
-                                        <p className="home-review-stars">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</p>
-                                    </div>
+            {reviews?.reviews?.length > 0 && (() => {
+                const all = reviews.reviews;
+                const len = all.length;
+                const cards = [0, 1, 2].map(offset => all[(reviewIndex + offset) % len]);
+                return (
+                    <section className="home-reviews" onMouseEnter={() => setReviewPaused(true)} onMouseLeave={() => setReviewPaused(false)}>
+                        <div className="home-reviews-inner">
+                            <h2 className="home-section-title">What Our Customers Say</h2>
+                            {reviews.rating && (
+                                <p className="home-reviews-summary">
+                                    <span className="home-reviews-star">★</span> {reviews.rating.toFixed(1)} · {reviews.userRatingCount} reviews on Google
+                                </p>
+                            )}
+                            <div className="home-reviews-carousel">
+                                <button className="home-reviews-nav" onClick={() => { setReviewDirection(-1); setReviewIndex(i => (i - 1 + len) % len); setReviewPaused(true); }} aria-label="Previous review">&#8249;</button>
+                                <div className="home-reviews-track-wrap">
+                                    <AnimatePresence initial={false} custom={reviewDirection} mode="wait">
+                                        <motion.div
+                                            key={reviewIndex}
+                                            className="home-reviews-track"
+                                            custom={reviewDirection}
+                                            variants={{ enter: d => ({ x: d > 0 ? '60%' : '-60%', opacity: 0 }), center: { x: 0, opacity: 1 }, exit: d => ({ x: d > 0 ? '-60%' : '60%', opacity: 0 }) }}
+                                            initial="enter"
+                                            animate="center"
+                                            exit="exit"
+                                            transition={{ duration: 0.4, ease: 'easeInOut' }}
+                                        >
+                                            {cards.map((r, i) => (
+                                                <div key={i} className={`home-review-card${i === 1 ? ' home-review-card-hide-mobile' : i === 2 ? ' home-review-card-hide-medium' : ''}`}>
+                                                    <div className="home-review-header">
+                                                        <ReviewAvatar r={r} />
+                                                        <div>
+                                                            <p className="home-review-author">{r.authorAttribution?.displayName?.text}</p>
+                                                            <p className="home-review-stars">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</p>
+                                                        </div>
+                                                    </div>
+                                                    <p className="home-review-text">{r.text?.text}</p>
+                                                </div>
+                                            ))}
+                                        </motion.div>
+                                    </AnimatePresence>
                                 </div>
-                                <p className="home-review-text">{r.text?.text}</p>
+                                <button className="home-reviews-nav" onClick={() => { setReviewDirection(1); setReviewIndex(i => (i + 1) % len); setReviewPaused(true); }} aria-label="Next review">&#8250;</button>
                             </div>
-                        ))}
-                    </div>
-                </section>
-            )}
-
-            {/* Latest — carousel */}
-            {posts.length > 0 && (
-                <section
-                    className="home-latest"
-                    onMouseEnter={() => setPaused(true)}
-                    onMouseLeave={() => setPaused(false)}
-                >
-                    <h2 className="home-section-title">Latest</h2>
-                    <div className="home-latest-carousel">
-                        <div className="home-latest-inner">
-                            {posts.length > 1 && (
-                                <button className="home-latest-nav" onClick={goPrev} aria-label="Previous post">&#8249;</button>
-                            )}
-                            <div className="home-latest-track">
-                                <AnimatePresence initial={false} custom={direction}>
-                                    <motion.div
-                                        key={activeIndex}
-                                        className="home-latest-slide"
-                                        custom={direction}
-                                        variants={slideVariants}
-                                        initial="enter"
-                                        animate="center"
-                                        exit="exit"
-                                        transition={{ duration: 0.35, ease: 'easeInOut' }}
-                                    >
-                                        <p className="home-latest-date">{formatDate(posts[activeIndex].created_at)}</p>
-                                        <h3 className="home-latest-title">{posts[activeIndex].title}</h3>
-                                        <div className="home-latest-body rich-text" dangerouslySetInnerHTML={{ __html: posts[activeIndex].body }} />
-                                    </motion.div>
-                                </AnimatePresence>
-                            </div>
-                            {posts.length > 1 && (
-                                <button className="home-latest-nav" onClick={goNext} aria-label="Next post">&#8250;</button>
-                            )}
                         </div>
+                    </section>
+                );
+            })()}
 
-                        {posts.length > 1 && (
-                            <div className="home-latest-dots">
-                                {posts.map((_, i) => (
-                                    <button
-                                        key={i}
-                                        className={`home-latest-dot${i === activeIndex ? ' active' : ''}`}
-                                        onClick={() => { setDirection(i > activeIndex ? 1 : -1); setActiveIndex(i); setPaused(true); }}
-                                        aria-label={`Go to post ${i + 1}`}
-                                    />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </section>
-            )}
 
             {/* Contact */}
             <section className="home-contact">
