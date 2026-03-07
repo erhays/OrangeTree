@@ -12,6 +12,7 @@ import AddAppointment from './components/AddAppointment'
 import AppointmentDetail from './components/AppointmentDetail'
 import EditAppointment from './components/EditAppointment'
 import BookAppointment from './components/BookAppointment'
+import Services from './components/Services'
 import Insights from './components/Insights'
 import ContentPage from './components/ContentPage'
 import Settings from './components/Settings'
@@ -30,7 +31,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<div />} />
-        <Route path="/services" element={<div />} />
+        <Route path="/services" element={<Services />} />
         <Route path="/contact" element={<div />} />
         <Route path="/book" element={<BookAppointment />} />
         <Route path="/login" element={<Login />} />

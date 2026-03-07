@@ -517,6 +517,37 @@ app.put('/api/settings/hero', requireAuth, async (req, res) => {
     }
 });
 
+// Google Reviews (cached 6 hours)
+const reviewsCache = { data: null, fetchedAt: 0 };
+app.get('/api/reviews', async (_req, res) => {
+    const TTL = 6 * 60 * 60 * 1000;
+    if (reviewsCache.data && Date.now() - reviewsCache.fetchedAt < TTL) {
+        return res.json(reviewsCache.data);
+    }
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    const placeId = 'ChIJz7f3SuwLK4cRGdGZfsZBbl8';
+    if (!apiKey) return res.status(503).json({ error: 'Reviews unavailable.' });
+    try {
+        const response = await fetch(
+            `https://places.googleapis.com/v1/places/${placeId}`,
+            { headers: { 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'reviews,rating,userRatingCount' } }
+        );
+        if (!response.ok) throw new Error(`Places API error: ${response.status}`);
+        const data = await response.json();
+        const payload = {
+            rating: data.rating,
+            userRatingCount: data.userRatingCount,
+            reviews: (data.reviews || []).filter(r => r.rating >= 4),
+        };
+        reviewsCache.data = payload;
+        reviewsCache.fetchedAt = Date.now();
+        res.json(payload);
+    } catch (err) {
+        console.error('Google Places fetch failed:', err);
+        res.status(502).json({ error: 'Failed to fetch reviews.' });
+    }
+});
+
 // Submit contact inquiry (public)
 app.post('/api/contact', async (req, res) => {
     const { name, email, message } = req.body;

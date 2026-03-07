@@ -6,24 +6,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 const formatDate = (dt) => new Date(dt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-const SERVICES = [
-    {
-        name: 'Quick Detail',
-        description: 'Exterior wash, tire shine, and interior wipe-down. Perfect for a fast refresh.',
-        price: 'From $49',
-    },
-    {
-        name: 'Full Detail',
-        description: 'Complete interior and exterior detail, including hand wax and deep vacuum.',
-        price: 'From $149',
-    },
-    {
-        name: 'Premium Detail',
-        description: 'Everything in Full plus paint decontamination, clay bar, and ceramic coating prep.',
-        price: 'From $299',
-    },
-];
-
 const DEFAULT_HERO = 'We bring the shine back to your vehicle — inside and out. Serving the area with premium detailing at competitive prices.';
 
 const slideVariants = {
@@ -36,6 +18,7 @@ export default function Home() {
     const [form, setForm] = useState({ name: '', email: '', message: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [posts, setPosts] = useState([]);
+    const [reviews, setReviews] = useState(null);
     const [heroDescription, setHeroDescription] = useState(DEFAULT_HERO);
     const [activeIndex, setActiveIndex] = useState(0);
     const [direction, setDirection] = useState(1);
@@ -63,6 +46,7 @@ export default function Home() {
     };
 
     useEffect(() => {
+        axios.get('/api/reviews').then(res => setReviews(res.data)).catch(() => {});
         axios.get('/api/posts').then(res => {
             const p = res.data.slice(0, 3);
             setPosts(p);
@@ -111,24 +95,39 @@ export default function Home() {
                 <div className="home-hero-img-wrap">
                     <img src="/hero-car.jpg" alt="Detail car" className="home-hero-img" />
                 </div>
-                <button className="home-hero-scroll" onClick={() => document.querySelector('.home-services')?.scrollIntoView({ behavior: 'smooth' })} aria-label="Scroll down">
+                <button className="home-hero-scroll" onClick={() => document.querySelector('.home-latest, .home-contact')?.scrollIntoView({ behavior: 'smooth' })} aria-label="Scroll down">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
             </section>
 
-            {/* Services */}
-            <section className="home-services">
-                <h2 className="home-section-title">Our Services</h2>
-                <div className="home-services-grid">
-                    {SERVICES.map(s => (
-                        <div key={s.name} className="home-service-card">
-                            <h3 className="home-service-name">{s.name}</h3>
-                            <p className="home-service-desc">{s.description}</p>
-                            <span className="home-service-price">{s.price}</span>
-                        </div>
-                    ))}
-                </div>
-            </section>
+            {/* Reviews */}
+            {reviews?.reviews?.length > 0 && (
+                <section className="home-reviews">
+                    <h2 className="home-section-title">What Our Customers Say</h2>
+                    {reviews.rating && (
+                        <p className="home-reviews-summary">
+                            <span className="home-reviews-star">★</span> {reviews.rating.toFixed(1)} · {reviews.userRatingCount} reviews on Google
+                        </p>
+                    )}
+                    <div className="home-reviews-grid">
+                        {reviews.reviews.map((r, i) => (
+                            <div key={i} className="home-review-card">
+                                <div className="home-review-header">
+                                    {r.authorPhoto
+                                        ? <img src={r.authorPhoto} alt={r.authorAttribution?.displayName?.text} className="home-review-avatar" />
+                                        : <div className="home-review-avatar home-review-avatar-fallback">{r.authorAttribution?.displayName?.text?.[0] ?? '?'}</div>
+                                    }
+                                    <div>
+                                        <p className="home-review-author">{r.authorAttribution?.displayName?.text}</p>
+                                        <p className="home-review-stars">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</p>
+                                    </div>
+                                </div>
+                                <p className="home-review-text">{r.text?.text}</p>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
 
             {/* Latest — carousel */}
             {posts.length > 0 && (

@@ -29,6 +29,7 @@ services:
       RESEND_API_KEY: ${RESEND_API_KEY}
       OWNER_EMAIL: ${OWNER_EMAIL}
       SESSION_SECRET: ${SESSION_SECRET}
+      GOOGLE_PLACES_API_KEY: ${GOOGLE_PLACES_API_KEY}
     volumes:
       - ./uploads:/app/uploads
 
