@@ -727,7 +727,7 @@
 }
 
 .home-hero-title {
-    font-size: 3.5rem;
+    font-size: 4.5rem;
     font-weight: 300;
     color: #fff;
     line-height: 1.1;
@@ -738,7 +738,7 @@
 
 .home-hero-btn {
     display: inline-block;
-    background: #00bcd4;
+    background: #1cdef7;
     color: #121212;
     font-weight: 700;
     font-size: 0.95rem;
@@ -770,6 +770,12 @@
 
 .home-hero-scroll:hover {
     color: #fff;
+}
+
+@media (min-width: 1200px) {
+    .home-hero-content {
+        padding-left: 10rem;
+    }
 }
 
 @media (max-width: 768px) {

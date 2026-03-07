@@ -561,6 +561,11 @@ app.post('/api/bookings', async (req, res) => {
         );
         res.status(201).json({ success: true, id: apptResult.rows[0].id });
 
+        const appointmentId = apptResult.rows[0].id;
+        const formattedDate = new Date(dateTime).toLocaleString('en-US', {
+            month: '2-digit', day: '2-digit', year: 'numeric',
+            hour: 'numeric', minute: '2-digit', hour12: true
+        });
         resend?.emails.send({
             from: 'OrangeTree Detailing <notifications@orangetreeautodetailing.com>',
             to: process.env.OWNER_EMAIL,
@@ -571,8 +576,14 @@ app.post('/api/bookings', async (req, res) => {
                 <p><strong>Email:</strong> ${email}</p>
                 <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
                 <p><strong>Service:</strong> ${serviceType}</p>
-                <p><strong>Date/Time:</strong> ${dateTime}</p>
+                <p><strong>Date/Time:</strong> ${formattedDate}</p>
                 <p><strong>Notes:</strong> ${notes || 'None'}</p>
+                <p style="margin-top:24px;">
+                    <a href="https://orangetreeautodetailing.com/dashboard/appointments/${appointmentId}"
+                       style="background:#00bcd4;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;font-family:sans-serif;">
+                        View Booking
+                    </a>
+                </p>
             `
         }).catch(err => console.error('Email send failed:', err));
     } catch (error) {
