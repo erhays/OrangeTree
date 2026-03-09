@@ -121,7 +121,7 @@ export default function EditAppointment() {
                         style={{
                             padding: '0.7rem 1.75rem',
                             border: '1px solid #ddd',
-                            borderRadius: '7px',
+                            borderRadius: '4px',
                             fontSize: '0.95rem',
                             fontWeight: 600,
                             color: '#555',

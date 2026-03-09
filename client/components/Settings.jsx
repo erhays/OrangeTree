@@ -84,7 +84,7 @@ function Settings() {
         }
     };
 
-    const cardStyle = { background: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 2px 6px rgba(0,0,0,0.06)' };
+    const cardStyle = { background: '#fff', border: '1px solid #e5e7eb', borderRadius: '4px', padding: '1.5rem', boxShadow: '0 2px 6px rgba(0,0,0,0.06)' };
     const headingStyle = { fontSize: '0.95rem', fontWeight: 600, color: '#111827', margin: '0 0 1.25rem' };
 
     return (

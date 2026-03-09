@@ -20,6 +20,9 @@ import ChangePassword from './components/ChangePassword'
 import CookieBanner from './components/CookieBanner'
 import Footer from './components/Footer'
 import PrivacyPolicy from './components/PrivacyPolicy'
+import SiteMap from './components/SiteMap'
+import Contact from './components/Contact'
+import About from './components/About'
 import { Route, Routes, Navigate, useLocation } from 'react-router'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -35,11 +38,12 @@ function App() {
     <main className="page-content">
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/about" element={<div />} />
+        <Route path="/about" element={<About />} />
         <Route path="/services" element={<Services />} />
-        <Route path="/contact" element={<div />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/book" element={<BookAppointment />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/sitemap" element={<SiteMap />} />
         <Route path="/login" element={<Login />} />
         <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />}>

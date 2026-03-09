@@ -5,14 +5,14 @@ import axios from 'axios';
 const statCardStyle = {
     background: '#fff',
     border: '1px solid #e5e7eb',
-    borderRadius: '12px',
+    borderRadius: '4px',
     padding: '1.25rem 1.5rem',
 };
 
 const cardStyle = {
     background: '#fff',
     border: '1px solid #e5e7eb',
-    borderRadius: '12px',
+    borderRadius: '4px',
     padding: '1.5rem',
 };
 
@@ -76,7 +76,7 @@ export default function Insights() {
                             <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
                             <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} allowDecimals={false} />
                             <Tooltip
-                                contentStyle={{ border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '0.8rem' }}
+                                contentStyle={{ border: '1px solid #e5e7eb', borderRadius: '4px', fontSize: '0.8rem' }}
                                 cursor={{ fill: '#f9fafb' }}
                             />
                             <Bar dataKey="count" name="Appointments" fill="#2563eb" radius={[4, 4, 0, 0]} />

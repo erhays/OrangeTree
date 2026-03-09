@@ -18,10 +18,15 @@ const SERVICES = [
 
 export default function Services() {
     return (
-        <div className="page-content">
+        <div className="services-page">
+            <section className="about-hero">
+                <div className="about-hero-inner">
+                    <h1>Services</h1>
+                    <p>Professional mobile detailing packages — delivered to your door.</p>
+                </div>
+            </section>
             <section className="home-services">
-                <h2 className="home-section-title">Our Services</h2>
-                <div className="home-services-grid">
+<div className="home-services-grid">
                     {SERVICES.map(s => (
                         <div key={s.name} className="home-service-card">
                             <h3 className="home-service-name">{s.name}</h3>

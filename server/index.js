@@ -541,6 +541,41 @@ app.put('/api/settings/hero', requireAuth, async (req, res) => {
     }
 });
 
+// Business info (cached 6 hours)
+const businessCache = { data: null, fetchedAt: 0 };
+app.get('/api/business-info', async (_req, res) => {
+    const TTL = 6 * 60 * 60 * 1000;
+    if (businessCache.data && Date.now() - businessCache.fetchedAt < TTL) {
+        return res.json(businessCache.data);
+    }
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    const placeId = 'ChIJz7f3SuwLK4cRGdGZfsZBbl8';
+    if (!apiKey) return res.status(503).json({ error: 'Business info unavailable.' });
+    try {
+        const response = await fetch(
+            `https://places.googleapis.com/v1/places/${placeId}`,
+            { headers: { 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'displayName,formattedAddress,nationalPhoneNumber,regularOpeningHours,websiteUri,rating,userRatingCount' } }
+        );
+        if (!response.ok) throw new Error(`Places API error: ${response.status}`);
+        const data = await response.json();
+        const payload = {
+            name: data.displayName?.text || null,
+            address: data.formattedAddress || null,
+            phone: data.nationalPhoneNumber || null,
+            website: data.websiteUri || null,
+            rating: data.rating || null,
+            userRatingCount: data.userRatingCount || null,
+            hours: data.regularOpeningHours?.weekdayDescriptions || null,
+        };
+        businessCache.data = payload;
+        businessCache.fetchedAt = Date.now();
+        res.json(payload);
+    } catch (err) {
+        console.error('Google Places business-info fetch failed:', err);
+        res.status(502).json({ error: 'Failed to fetch business info.' });
+    }
+});
+
 // Google Reviews (cached 6 hours)
 const reviewsCache = { data: null, fetchedAt: 0 };
 app.get('/api/reviews', async (_req, res) => {
@@ -570,6 +605,14 @@ app.get('/api/reviews', async (_req, res) => {
         console.error('Google Places fetch failed:', err);
         res.status(502).json({ error: 'Failed to fetch reviews.' });
     }
+});
+
+// Maps embed URL (public — returns URL with key so key stays server-side)
+app.get('/api/maps-embed-url', (_req, res) => {
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    const placeId = 'ChIJz7f3SuwLK4cRGdGZfsZBbl8';
+    if (!apiKey) return res.status(503).json({ error: 'Maps unavailable.' });
+    res.json({ url: `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=place_id:${placeId}` });
 });
 
 // Submit contact inquiry (public)

@@ -34,7 +34,7 @@ export default function ChangePassword() {
         }
     };
 
-    const cardStyle = { background: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 2px 6px rgba(0,0,0,0.06)' };
+    const cardStyle = { background: '#fff', border: '1px solid #e5e7eb', borderRadius: '4px', padding: '1.5rem', boxShadow: '0 2px 6px rgba(0,0,0,0.06)' };
 
     return (
         <div style={{ padding: '2rem', maxWidth: '480px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

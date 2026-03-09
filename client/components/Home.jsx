@@ -34,6 +34,7 @@ export default function Home() {
     const [reviewPaused, setReviewPaused] = useState(false);
     const reviewIntervalRef = useRef(null);
     const [heroDescription, setHeroDescription] = useState(DEFAULT_HERO);
+    const [mapsEmbedUrl, setMapsEmbedUrl] = useState(null);
     const [activeIndex, setActiveIndex] = useState(0);
     const [direction, setDirection] = useState(1);
     const [paused, setPaused] = useState(false);
@@ -70,6 +71,7 @@ export default function Home() {
         axios.get('/api/settings/hero').then(res => {
             if (res.data.heroDescription) setHeroDescription(res.data.heroDescription);
         }).catch(() => {});
+        axios.get('/api/maps-embed-url').then(res => setMapsEmbedUrl(res.data.url)).catch(() => {});
         return () => clearInterval(intervalRef.current);
     }, []);
 
@@ -182,6 +184,20 @@ export default function Home() {
                 );
             })()}
 
+
+            {/* Map */}
+            {mapsEmbedUrl && (
+                <section className="home-map">
+                    <iframe
+                        src={mapsEmbedUrl}
+                        className="home-map-iframe"
+                        allowFullScreen
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        title="OrangeTree Detailing location"
+                    />
+                </section>
+            )}
 
             {/* Contact */}
             <section className="home-contact">

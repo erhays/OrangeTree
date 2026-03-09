@@ -35,7 +35,7 @@ export default function RichTextEditor({ value, onChange }) {
     if (!editor) return null;
 
     return (
-        <div style={{ border: '1px solid #d1d5db', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
+        <div style={{ border: '1px solid #d1d5db', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
             {/* Toolbar */}
             <div style={{
                 display: 'flex', gap: '0.2rem', padding: '0.5rem 0.6rem',
