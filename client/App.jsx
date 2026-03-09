@@ -17,6 +17,7 @@ import Insights from './components/Insights'
 import ContentPage from './components/ContentPage'
 import Settings from './components/Settings'
 import ChangePassword from './components/ChangePassword'
+import CookieBanner from './components/CookieBanner'
 import { Route, Routes, Navigate } from 'react-router'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -54,6 +55,7 @@ function App() {
         </Route>
       </Routes>
     </main>
+      <CookieBanner />
       <ToastContainer position="bottom-right" autoClose={3000} />
     </>
   )
