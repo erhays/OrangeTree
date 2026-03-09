@@ -18,12 +18,16 @@ import ContentPage from './components/ContentPage'
 import Settings from './components/Settings'
 import ChangePassword from './components/ChangePassword'
 import CookieBanner from './components/CookieBanner'
-import { Route, Routes, Navigate } from 'react-router'
+import Footer from './components/Footer'
+import PrivacyPolicy from './components/PrivacyPolicy'
+import { Route, Routes, Navigate, useLocation } from 'react-router'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import './App.css'
 
 function App() {
+  const location = useLocation();
+  const showFooter = !location.pathname.startsWith('/dashboard') && location.pathname !== '/login';
 
   return (
     <>
@@ -35,6 +39,7 @@ function App() {
         <Route path="/services" element={<Services />} />
         <Route path="/contact" element={<div />} />
         <Route path="/book" element={<BookAppointment />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/login" element={<Login />} />
         <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />}>
@@ -55,6 +60,7 @@ function App() {
         </Route>
       </Routes>
     </main>
+    {showFooter && <Footer />}
       <CookieBanner />
       <ToastContainer position="bottom-right" autoClose={3000} />
     </>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const KEY = 'cookie_consent';
@@ -22,7 +23,7 @@ export default function CookieBanner() {
                     transition={{ duration: 0.3, ease: 'easeOut' }}
                 >
                     <p className="cookie-banner-text">
-                        We use cookies to improve your experience.
+                        We use cookies to improve your experience. See our <Link to="/privacy" className="cookie-banner-link">Privacy Policy</Link>.
                     </p>
                     <div className="cookie-banner-actions">
                         <button className="cookie-banner-decline" onClick={() => respond('declined')}>Decline</button>

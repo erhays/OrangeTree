@@ -101,6 +101,7 @@ export default function Home() {
         setIsSubmitting(true);
         try {
             await axios.post('/api/contact', form);
+            window.umami?.track('contact-form-submitted');
             toast.success('Message sent! We\'ll be in touch soon.');
             setForm({ name: '', email: '', message: '' });
         } catch {
@@ -116,7 +117,7 @@ export default function Home() {
             <section className="home-hero">
                 <div className="home-hero-content">
                     <h1 className="home-hero-title">Scottsdale's premier mobile detailing specialists.</h1>
-                    <Link to="/book" className="home-hero-btn">BOOK NOW</Link>
+                    <Link to="/book" className="home-hero-btn" onClick={() => window.umami?.track('book-now-click')}>BOOK NOW</Link>
                 </div>
                 <div className="home-hero-img-wrap">
                     <img src="/hero-car.jpg" alt="Detail car" className="home-hero-img" />

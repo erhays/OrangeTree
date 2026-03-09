@@ -1146,6 +1146,13 @@
     flex: 1;
 }
 
+.cookie-banner-link {
+    color: #00bcd4;
+    text-decoration: none;
+}
+
+.cookie-banner-link:hover { text-decoration: underline; }
+
 .cookie-banner-actions {
     display: flex;
     gap: 0.5rem;
@@ -1462,3 +1469,92 @@
     line-clamp: 4;
     -webkit-box-orient: vertical;
 }
+
+/* Footer */
+.site-footer {
+    background: #111;
+    color: #9ca3af;
+    font-size: 0.8rem;
+    padding: 1.5rem 1.5rem;
+}
+
+.site-footer-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.site-footer-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.site-footer-nav a {
+    color: #d1d5db;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.site-footer-nav a:hover { color: #fff; }
+
+.site-footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    justify-content: space-between;
+    border-top: 1px solid #2a2a2a;
+    padding-top: 0.75rem;
+}
+
+.site-footer-bottom a {
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.site-footer-bottom a:hover { color: #fff; }
+
+/* Privacy Policy page */
+.privacy-page {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+}
+
+.privacy-inner h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.privacy-updated {
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+}
+
+.privacy-inner section {
+    margin-bottom: 1.75rem;
+}
+
+.privacy-inner h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.privacy-inner p {
+    color: #374151;
+    line-height: 1.65;
+    margin-bottom: 0.6rem;
+}
+
+.privacy-inner a {
+    color: #00bcd4;
+    text-decoration: none;
+}
+
+.privacy-inner a:hover { text-decoration: underline; }

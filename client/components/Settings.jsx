@@ -11,6 +11,7 @@ function Settings() {
     const [newUserForm, setNewUserForm] = useState({ email: '', password: '', confirm: '' });
     const [submittingUser, setSubmittingUser] = useState(false);
     const [showAddUser, setShowAddUser] = useState(false);
+    const [loginHistory, setLoginHistory] = useState([]);
     const fileInputRef = useRef(null);
 
     useEffect(() => {
@@ -19,6 +20,7 @@ function Settings() {
             setName(res.data.name || '');
         }).catch(() => {});
         axios.get('/api/users').then(res => setUsers(res.data)).catch(() => {});
+        axios.get('/api/me/login-history').then(res => setLoginHistory(res.data)).catch(() => {});
     }, []);
 
     const initials = me
@@ -253,6 +255,39 @@ function Settings() {
                     </button>
                 </div>
             )}
+
+            {/* Login History */}
+            <div style={cardStyle}>
+                <h3 style={headingStyle}>Recent Logins</h3>
+                {loginHistory.length === 0 ? (
+                    <p style={{ fontSize: '0.875rem', color: '#9ca3af', margin: 0 }}>No login history yet.</p>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        {loginHistory.map((entry, i) => (
+                            <div key={entry.id} style={{
+                                display: 'flex', flexDirection: 'column', gap: '0.15rem',
+                                paddingBottom: i < loginHistory.length - 1 ? '0.75rem' : 0,
+                                borderBottom: i < loginHistory.length - 1 ? '1px solid #f3f4f6' : 'none',
+                            }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.8rem', color: '#374151', fontWeight: 500 }}>
+                                        {new Date(entry.logged_in_at).toLocaleString('en-US', {
+                                            month: 'short', day: 'numeric', year: 'numeric',
+                                            hour: 'numeric', minute: '2-digit', hour12: true,
+                                        })}
+                                    </span>
+                                    <span style={{ fontSize: '0.75rem', color: '#9ca3af', fontFamily: 'monospace' }}>
+                                        {entry.ip || 'Unknown IP'}
+                                    </span>
+                                </div>
+                                <span style={{ fontSize: '0.72rem', color: '#9ca3af', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {entry.user_agent || 'Unknown browser'}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

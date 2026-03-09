@@ -30,6 +30,7 @@ export default function BookAppointment() {
         setIsSubmitting(true);
         try {
             await axios.post('/api/bookings', form);
+            window.umami?.track('booking-submitted', { service: form.serviceType });
             setSubmitted(true);
             toast.success('Appointment booked! We\'ll confirm with you shortly.');
         } catch {

@@ -67,6 +67,13 @@ pool.connect((err) => {
       ALTER TABLE customer ADD COLUMN IF NOT EXISTS zip TEXT;
       CREATE TABLE IF NOT EXISTS site_settings (key TEXT PRIMARY KEY, value TEXT);
       INSERT INTO site_settings (key, value) VALUES ('hero_description', 'We bring the shine back to your vehicle — inside and out. Serving the area with premium detailing at competitive prices.') ON CONFLICT (key) DO NOTHING;
+      CREATE TABLE IF NOT EXISTS login_history (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        ip TEXT,
+        user_agent TEXT,
+        logged_in_at TIMESTAMPTZ DEFAULT NOW()
+      );
     `).catch(e => console.error('Migration error:', e));
   }
 });
@@ -108,6 +115,10 @@ app.post('/api/login', async (req, res) => {
         }
         req.session.userId = user.id;
         req.session.email = user.email;
+        const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket?.remoteAddress || null;
+        const ua = req.headers['user-agent'] || null;
+        pool.query('INSERT INTO login_history (user_id, ip, user_agent) VALUES ($1, $2, $3)', [user.id, ip, ua])
+            .catch(e => console.error('Failed to record login history:', e));
         res.json({ success: true, email: user.email });
     } catch (err) {
         console.error('Login error:', err);
@@ -125,6 +136,19 @@ app.get('/api/me', async (req, res) => {
     );
     const user = result.rows[0];
     res.json({ id: user.id, email: user.email, name: user.name, avatarUrl: user.avatar_url });
+});
+
+app.get('/api/me/login-history', requireAuth, async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT id, ip, user_agent, logged_in_at FROM login_history WHERE user_id = $1 ORDER BY logged_in_at DESC LIMIT 10',
+            [req.session.userId]
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch login history.' });
+    }
 });
 
 app.post('/api/logout', (req, res) => {
