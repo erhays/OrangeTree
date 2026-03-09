@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const KEY = 'cookie_consent';
 
 export default function CookieBanner() {
-    const [visible, setVisible] = useState(() => !localStorage.getItem(KEY));
+    const [visible, setVisible] = useState(() => typeof localStorage !== 'undefined' && !localStorage.getItem(KEY));
 
     const respond = (value) => {
         localStorage.setItem(KEY, value);
