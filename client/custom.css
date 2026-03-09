@@ -273,6 +273,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
+    min-width: 0;
 }
 
 .customer-detail-label {
@@ -286,6 +287,10 @@
 .customer-detail-value {
     font-size: 1rem;
     color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
 }
 
 /* Customer appointment history */
@@ -887,7 +892,6 @@
 
 /* Reviews */
 .home-reviews {
-    padding-top: 100px;
     background: #fff;
     min-height: 100vh;
     display: flex;
@@ -946,8 +950,21 @@
 
 .home-reviews-track {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
+    overflow: hidden;
+}
+
+.home-reviews-strip {
+    display: grid;
+    gap: 1.5rem;
+    will-change: transform;
+}
+
+.home-reviews-pager {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: #9ca3af;
 }
 
 .home-review-card {
@@ -957,7 +974,8 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    min-height: 220px;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
 }
 
 .home-review-header {
@@ -1003,25 +1021,15 @@
     color: #444;
     line-height: 1.7;
     margin: 0;
-}
-
-@media (max-width: 1100px) and (min-width: 769px) {
-    .home-reviews-track {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    .home-review-card-hide-medium {
-        display: none;
-    }
+    flex: 1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
 }
 
 @media (max-width: 768px) {
-    .home-reviews-track {
-        grid-template-columns: 1fr;
-    }
-    .home-review-card-hide-mobile,
-    .home-review-card-hide-medium {
-        display: none;
-    }
     .home-reviews-inner {
         padding: 4rem 0.75rem 3rem;
     }

@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion, useMotionValue, animate } from 'framer-motion';
 
 const formatDate = (dt) => new Date(dt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -30,9 +30,13 @@ export default function Home() {
     const [posts, setPosts] = useState([]);
     const [reviews, setReviews] = useState(null);
     const [reviewIndex, setReviewIndex] = useState(0);
-    const [reviewDirection, setReviewDirection] = useState(1);
     const [reviewPaused, setReviewPaused] = useState(false);
     const reviewIntervalRef = useRef(null);
+    const [visibleReviews, setVisibleReviews] = useState(3);
+    const reviewX = useMotionValue(0);
+    const reviewTrackRef = useRef(null);
+    const reviewAnimating = useRef(false);
+    const [reviewCardW, setReviewCardW] = useState(0);
     const [heroDescription, setHeroDescription] = useState(DEFAULT_HERO);
     const [mapsEmbedUrl, setMapsEmbedUrl] = useState(null);
     const [activeIndex, setActiveIndex] = useState(0);
@@ -87,16 +91,51 @@ export default function Home() {
         setForm(prev => ({ ...prev, [name]: value }));
     };
 
+    const getStep = () => {
+        const w = reviewTrackRef.current?.offsetWidth || 0;
+        const gap = 24;
+        const cardW = (w - (visibleReviews - 1) * gap) / visibleReviews;
+        setReviewCardW(cardW);
+        return { step: cardW + gap, cardW };
+    };
+
+    const goReview = async (dir, len) => {
+        if (reviewAnimating.current) return;
+        reviewAnimating.current = true;
+        setReviewPaused(true);
+        const { step } = getStep();
+        // track starts at x=-step (card idx-1 hidden left, cards idx..idx+N-1 visible, card idx+N hidden right)
+        // forward: animate to -step*2, then update index+1 and snap back to -step
+        // backward: animate to 0, then update index-1 and snap back to -step
+        const target = dir === 1 ? -(step * 2) : 0;
+        await animate(reviewX, target, { duration: 0.4, ease: [0.4, 0, 0.2, 1] });
+        setReviewIndex(i => (i + dir + len) % len);
+        reviewX.set(-step);
+        reviewAnimating.current = false;
+    };
+
+    useLayoutEffect(() => {
+        const { step } = getStep();
+        if (step > 0) reviewX.set(-step);
+    }, [visibleReviews]);
+
     useEffect(() => {
         if (!reviews?.reviews?.length) return;
         const len = reviews.reviews.length;
         if (reviewPaused) {
             clearInterval(reviewIntervalRef.current);
         } else {
-            reviewIntervalRef.current = setInterval(() => { setReviewDirection(1); setReviewIndex(i => (i + 1) % len); }, 5000);
+            reviewIntervalRef.current = setInterval(() => goReview(1, len), 5000);
         }
         return () => clearInterval(reviewIntervalRef.current);
     }, [reviews, reviewPaused]);
+
+    useEffect(() => {
+        const update = () => setVisibleReviews(window.innerWidth >= 1100 ? 3 : window.innerWidth >= 769 ? 2 : 1);
+        update();
+        window.addEventListener('resize', update);
+        return () => window.removeEventListener('resize', update);
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -138,7 +177,10 @@ export default function Home() {
             {reviews?.reviews?.length > 0 && (() => {
                 const all = reviews.reviews;
                 const len = all.length;
-                const cards = [0, 1, 2].map(offset => all[(reviewIndex + offset) % len]);
+                // Render N+2 cards: one hidden left, N visible, one hidden right
+                const stripCards = Array.from({ length: visibleReviews + 2 }, (_, i) =>
+                    all[(reviewIndex - 1 + i + len) % len]
+                );
                 return (
                     <section className="home-reviews" onMouseEnter={() => setReviewPaused(true)} onMouseLeave={() => setReviewPaused(false)}>
                         <div className="home-reviews-inner">
@@ -149,35 +191,27 @@ export default function Home() {
                                 </p>
                             )}
                             <div className="home-reviews-carousel">
-                                <button className="home-reviews-nav" onClick={() => { setReviewDirection(-1); setReviewIndex(i => (i - 1 + len) % len); setReviewPaused(true); }} aria-label="Previous review">&#8249;</button>
-                                <div className="home-reviews-track-wrap">
-                                    <AnimatePresence initial={false} custom={reviewDirection} mode="wait">
-                                        <motion.div
-                                            key={reviewIndex}
-                                            className="home-reviews-track"
-                                            custom={reviewDirection}
-                                            variants={{ enter: d => ({ x: d > 0 ? '60%' : '-60%', opacity: 0 }), center: { x: 0, opacity: 1 }, exit: d => ({ x: d > 0 ? '-60%' : '60%', opacity: 0 }) }}
-                                            initial="enter"
-                                            animate="center"
-                                            exit="exit"
-                                            transition={{ duration: 0.4, ease: 'easeInOut' }}
-                                        >
-                                            {cards.map((r, i) => (
-                                                <div key={i} className={`home-review-card${i === 1 ? ' home-review-card-hide-mobile' : i === 2 ? ' home-review-card-hide-medium' : ''}`}>
-                                                    <div className="home-review-header">
-                                                        <ReviewAvatar r={r} />
-                                                        <div>
-                                                            <p className="home-review-author">{r.authorAttribution?.displayName?.text}</p>
-                                                            <p className="home-review-stars">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</p>
-                                                        </div>
+                                <button className="home-reviews-nav" onClick={() => goReview(-1, len)} aria-label="Previous review">&#8249;</button>
+                                <div className="home-reviews-track-wrap" ref={reviewTrackRef}>
+                                    <motion.div
+                                        className="home-reviews-strip"
+                                        style={{ x: reviewX, gridTemplateColumns: reviewCardW > 0 ? `repeat(${visibleReviews + 2}, ${reviewCardW}px)` : `repeat(${visibleReviews + 2}, 1fr)` }}
+                                    >
+                                        {stripCards.map((r, i) => (
+                                            <div key={i} className="home-review-card">
+                                                <div className="home-review-header">
+                                                    <ReviewAvatar r={r} />
+                                                    <div>
+                                                        <p className="home-review-author">{r.authorAttribution?.displayName?.text}</p>
+                                                        <p className="home-review-stars">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</p>
                                                     </div>
-                                                    <p className="home-review-text">{r.text?.text}</p>
                                                 </div>
-                                            ))}
-                                        </motion.div>
-                                    </AnimatePresence>
+                                                <p className="home-review-text">{r.text?.text}</p>
+                                            </div>
+                                        ))}
+                                    </motion.div>
                                 </div>
-                                <button className="home-reviews-nav" onClick={() => { setReviewDirection(1); setReviewIndex(i => (i + 1) % len); setReviewPaused(true); }} aria-label="Next review">&#8250;</button>
+                                <button className="home-reviews-nav" onClick={() => goReview(1, len)} aria-label="Next review">&#8250;</button>
                             </div>
                         </div>
                     </section>
