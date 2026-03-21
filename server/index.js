@@ -615,6 +615,32 @@ app.get('/api/maps-embed-url', (_req, res) => {
     res.json({ url: `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=place_id:${placeId}` });
 });
 
+// Get contact inquiries (auth)
+app.get('/api/contact', requireAuth, async (_req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT id, name, email, message, created_at FROM contact_inquiry ORDER BY created_at DESC'
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching contact inquiries:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+// Delete contact inquiry (auth)
+app.delete('/api/contact/:id', requireAuth, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query('DELETE FROM contact_inquiry WHERE id = $1 RETURNING id', [id]);
+        if (result.rowCount === 0) return res.status(404).json({ error: 'Not found' });
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting contact inquiry:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
 // Submit contact inquiry (public)
 app.post('/api/contact', async (req, res) => {
     const { name, email, message } = req.body;

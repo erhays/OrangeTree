@@ -4,6 +4,7 @@ const links = [
     { to: '/dashboard/customers', label: 'Customers' },
     { to: '/dashboard/appointments', label: 'Appointments' },
     { to: '/dashboard/insights', label: 'Insights' },
+    { to: '/dashboard/messages', label: 'Messages' },
     { to: '/dashboard/content', label: 'Content' },
     { to: '/dashboard/settings', label: 'Settings' },
 ]
