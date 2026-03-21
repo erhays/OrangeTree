@@ -24,6 +24,7 @@ import SiteMap from './components/SiteMap'
 import Contact from './components/Contact'
 import About from './components/About'
 import Messages from './components/Messages'
+import MessageDetail from './components/MessageDetail'
 import { Route, Routes, Navigate, useLocation } from 'react-router'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -59,6 +60,7 @@ function App() {
           <Route path="appointments/:id/edit" element={<EditAppointment />} />
           <Route path="insights" element={<Insights />} />
           <Route path="messages" element={<Messages />} />
+          <Route path="messages/:id" element={<MessageDetail />} />
           <Route path="content" element={<ContentPage />} />
           <Route path="settings" element={<Settings />} />
           <Route path="settings/change-password" element={<ChangePassword />} />

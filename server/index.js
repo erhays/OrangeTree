@@ -74,6 +74,7 @@ pool.connect((err) => {
         user_agent TEXT,
         logged_in_at TIMESTAMPTZ DEFAULT NOW()
       );
+      ALTER TABLE contact_inquiry ADD COLUMN IF NOT EXISTS read BOOLEAN NOT NULL DEFAULT FALSE;
     `).catch(e => console.error('Migration error:', e));
   }
 });
@@ -624,6 +625,38 @@ app.get('/api/contact', requireAuth, async (_req, res) => {
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching contact inquiries:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+// Get single contact inquiry (auth)
+app.get('/api/contact/:id', requireAuth, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            'SELECT id, name, email, message, read, created_at FROM contact_inquiry WHERE id = $1',
+            [id]
+        );
+        if (result.rowCount === 0) return res.status(404).json({ error: 'Not found' });
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error fetching contact inquiry:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+// Mark contact inquiry as read (auth)
+app.patch('/api/contact/:id/read', requireAuth, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            'UPDATE contact_inquiry SET read = TRUE WHERE id = $1 RETURNING id',
+            [id]
+        );
+        if (result.rowCount === 0) return res.status(404).json({ error: 'Not found' });
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error marking inquiry as read:', error);
         res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
 });
