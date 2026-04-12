@@ -489,6 +489,7 @@
     font-size: 0.85rem;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -830,7 +831,177 @@
     }
 }
 
-/* Services */
+/* Services page tiers */
+.services-tiers {
+    padding: 4rem 2rem;
+    background: #f5f6fa;
+}
+
+.services-tiers-inner {
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+.services-tier-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.services-tier-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.services-tier-header {
+    position: relative;
+    color: #fff;
+    background-color: #111;
+    background-size: cover;
+    background-position: center;
+    min-height: 200px;
+}
+
+.services-tier-header-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 1.75rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.services-tier-name {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 0.25rem;
+}
+
+.services-tier-tagline {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.6);
+    margin: 0 0 1rem;
+}
+
+.services-tier-price {
+    display: inline-block;
+    align-self: flex-start;
+    background: #00bcd4;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 3px;
+}
+
+.services-tier-body {
+    padding: 1.75rem 2.5rem;
+    flex: 1;
+}
+
+.services-tier-desc {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.65;
+    margin-bottom: 1.5rem;
+}
+
+.services-tier-section {
+    margin-bottom: 1.5rem;
+}
+
+.services-tier-section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #aaa;
+    margin-bottom: 0.6rem;
+}
+
+.services-tier-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.services-tier-list li {
+    font-size: 0.875rem;
+    color: #444;
+    padding-left: 1.1rem;
+    position: relative;
+    line-height: 1.45;
+}
+
+.services-tier-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #00bcd4;
+    font-weight: 700;
+}
+
+.services-tier-addons {
+    background: #f0fcff;
+    border-top: 1px solid #e0f7fa;
+    padding: 1.25rem 2.5rem;
+}
+
+.services-tier-addons-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #00bcd4;
+    margin-bottom: 0.6rem;
+}
+
+.services-cta {
+    padding: 4rem 2rem;
+    text-align: center;
+    background: #fff;
+}
+
+.services-cta h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+}
+
+.services-cta p {
+    color: #666;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+}
+
+.services-cta-btn {
+    display: inline-block;
+    background: #00bcd4;
+    color: #fff;
+    font-weight: 700;
+    padding: 0.8rem 2rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+
+.services-cta-btn:hover {
+    background: #0097a7;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Services (home section) */
 .home-services {
     padding: 4rem 2rem;
     max-width: 1000px;

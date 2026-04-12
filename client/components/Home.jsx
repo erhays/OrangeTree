@@ -32,7 +32,9 @@ export default function Home() {
     const [reviewIndex, setReviewIndex] = useState(0);
     const [reviewPaused, setReviewPaused] = useState(false);
     const reviewIntervalRef = useRef(null);
-    const [visibleReviews, setVisibleReviews] = useState(3);
+    const [visibleReviews, setVisibleReviews] = useState(() =>
+        window.innerWidth >= 1100 ? 3 : window.innerWidth >= 769 ? 2 : 1
+    );
     const reviewX = useMotionValue(0);
     const reviewTrackRef = useRef(null);
     const reviewAnimating = useRef(false);
@@ -117,7 +119,7 @@ export default function Home() {
     useLayoutEffect(() => {
         const { step } = getStep();
         if (step > 0) reviewX.set(-step);
-    }, [visibleReviews]);
+    }, [visibleReviews, reviews?.reviews?.length]);
 
     useEffect(() => {
         if (!reviews?.reviews?.length) return;
@@ -195,7 +197,7 @@ export default function Home() {
                                 <div className="home-reviews-track-wrap" ref={reviewTrackRef}>
                                     <motion.div
                                         className="home-reviews-strip"
-                                        style={{ x: reviewX, gridTemplateColumns: reviewCardW > 0 ? `repeat(${visibleReviews + 2}, ${reviewCardW}px)` : `repeat(${visibleReviews + 2}, 1fr)` }}
+                                        style={{ x: reviewX, visibility: reviewCardW > 0 ? 'visible' : 'hidden', gridTemplateColumns: reviewCardW > 0 ? `repeat(${visibleReviews + 2}, ${reviewCardW}px)` : `repeat(${visibleReviews + 2}, 1fr)` }}
                                     >
                                         {stripCards.map((r, i) => (
                                             <div key={i} className="home-review-card">
