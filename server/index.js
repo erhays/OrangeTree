@@ -686,6 +686,25 @@ app.post('/api/contact', async (req, res) => {
             [name.trim(), email.trim(), message.trim()]
         );
         res.status(201).json({ success: true });
+
+        resend?.emails.send({
+            from: 'OrangeTree Detailing <notifications@orangetreeautodetailing.com>',
+            to: [process.env.OWNER_EMAIL, 'rickmo777@gmail.com'].filter(Boolean),
+            subject: `New Message from ${name.trim()}`,
+            html: `
+                <h2>New Contact Form Message</h2>
+                <p><strong>Name:</strong> ${name.trim()}</p>
+                <p><strong>Email:</strong> <a href="mailto:${email.trim()}">${email.trim()}</a></p>
+                <p><strong>Message:</strong></p>
+                <p style="white-space:pre-wrap;">${message.trim()}</p>
+                <p style="margin-top:24px;">
+                    <a href="https://orangetreeautodetailing.com/dashboard/messages"
+                       style="background:#00bcd4;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;font-family:sans-serif;">
+                        View Messages
+                    </a>
+                </p>
+            `
+        }).catch(err => console.error('Contact notification email failed:', err));
     } catch (error) {
         console.error('Error saving contact inquiry:', error);
         res.status(500).json({ error: 'Internal Server Error', message: error.message });
@@ -725,7 +744,7 @@ app.post('/api/bookings', async (req, res) => {
         });
         resend?.emails.send({
             from: 'OrangeTree Detailing <notifications@orangetreeautodetailing.com>',
-            to: process.env.OWNER_EMAIL,
+            to: [process.env.OWNER_EMAIL, 'rickmo777@gmail.com'].filter(Boolean),
             subject: `New Booking: ${serviceType} — ${firstName} ${lastName}`,
             html: `
                 <h2>New Appointment Booked</h2>
