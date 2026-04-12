@@ -33,7 +33,7 @@ export default function Home() {
     const [reviewPaused, setReviewPaused] = useState(false);
     const reviewIntervalRef = useRef(null);
     const [visibleReviews, setVisibleReviews] = useState(() =>
-        window.innerWidth >= 1100 ? 3 : window.innerWidth >= 769 ? 2 : 1
+        typeof window === 'undefined' ? 3 : window.innerWidth >= 1100 ? 3 : window.innerWidth >= 769 ? 2 : 1
     );
     const reviewX = useMotionValue(0);
     const reviewTrackRef = useRef(null);
