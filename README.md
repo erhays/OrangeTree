@@ -63,7 +63,58 @@ npm run build
 
 ## API Endpoints
 
-| Method | Endpoint          | Description             |
-| ------ | ----------------- | ----------------------- |
-| GET    | /api/customers    | Fetch all customers     |
-| POST   | /api/customers    | Create a new customer   |
+| Method | Endpoint              | Description                    |
+| ------ | ---------------------- | --------------------------------- |
+| POST   | /api/login               | Log in                          |
+| GET    | /api/customers            | Fetch all customers             |
+| POST   | /api/customers            | Create a new customer           |
+| PUT    | /api/customers/:id         | Update a customer                |
+| DELETE | /api/customers/:id         | Delete a customer                |
+| GET    | /api/appointments          | Fetch all appointments          |
+| POST   | /api/appointments          | Create a new appointment        |
+| PUT    | /api/appointments/:id       | Update an appointment           |
+| DELETE | /api/appointments/:id       | Delete an appointment           |
+| POST   | /api/bookings              | Submit a new booking (public)   |
+| POST   | /api/contact               | Submit the contact form (public) |
+
+*The full API includes additional routes for user management, dashboard insights, site content, and settings — see `server/index.js` for the complete list.*
+
+## Screenshots
+
+A few key views of the app — the public booking site and the admin dashboard.
+
+### Home Page
+
+The public-facing landing page customers see when they visit the site to book a detailing appointment.
+
+![Home Page](./screenshots/Desktop%20-%20Home%20Page.png)
+
+### Dashboard — Customers
+
+Admin view for browsing, searching, and managing the customer database.
+
+![Dashboard Customers](./screenshots/Desktop%20-%20Dashboard%20-%20Customers.png)
+
+### Dashboard — Appointments
+
+Scheduling view for tracking upcoming, in-progress, and completed appointments.
+
+![Dashboard Appointments](./screenshots/Desktop%20-%20Dashboard%20-%20Appointments.png)
+
+### Dashboard — Insights
+
+Analytics view summarizing business performance and appointment metrics.
+
+![Dashboard Insights](./screenshots/Desktop%20-%20Dashboard%20-%20Insights.png)
+
+### Dashboard — Messages
+
+Inbox for viewing and managing customer contact form submissions.
+
+![Dashboard Messages](./screenshots/Desktop%20-%20Dashboard%20-%20Messages.png)
+
+### Dashboard — Settings
+
+Admin settings panel for configuring site content and business details.
+
+![Dashboard Settings](./screenshots/Desktop%20-%20Dashboard%20-%20Settings.png)
