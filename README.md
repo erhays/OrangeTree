@@ -101,20 +101,34 @@ Scheduling view for tracking upcoming, in-progress, and completed appointments.
 
 ![Dashboard Appointments](./screenshots/Desktop%20-%20Dashboard%20-%20Appointments.png)
 
+### Dashboard — Edit Appointment
+
+Edit view for updating an appointment's service, date, time, and status.
+
+![Dashboard Edit Appointment](./screenshots/Desktop%20-%20Dashboard%20-%20Edit%20Appointment.png)
+
 ### Dashboard — Insights
 
 Analytics view summarizing business performance and appointment metrics.
 
 ![Dashboard Insights](./screenshots/Desktop%20-%20Dashboard%20-%20Insights.png)
 
-### Dashboard — Messages
-
-Inbox for viewing and managing customer contact form submissions.
-
-![Dashboard Messages](./screenshots/Desktop%20-%20Dashboard%20-%20Messages.png)
-
 ### Dashboard — Settings
 
 Admin settings panel for configuring site content and business details.
 
 ![Dashboard Settings](./screenshots/Desktop%20-%20Dashboard%20-%20Settings.png)
+
+## Mobile Responsive
+
+The app is fully responsive — the same public site and admin dashboard adapt cleanly to mobile screens.
+
+<table>
+  <tr>
+    <td align="center"><img src="./screenshots/Mobile%20-%20Home%20Page.PNG" width="160"><br><sub>Home Page</sub></td>
+    <td align="center"><img src="./screenshots/Mobile%20-%20Dashboard%20-%20Customers.PNG" width="160"><br><sub>Customers</sub></td>
+    <td align="center"><img src="./screenshots/Mobile%20-%20Dashboard%20-%20Appointments.PNG" width="160"><br><sub>Appointments</sub></td>
+    <td align="center"><img src="./screenshots/Mobile%20-%20Dashboard%20-%20Insights.PNG" width="160"><br><sub>Insights</sub></td>
+    <td align="center"><img src="./screenshots/Mobile%20-%20Dashboard%20-%20Settings.PNG" width="160"><br><sub>Settings</sub></td>
+  </tr>
+</table>
