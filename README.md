@@ -123,12 +123,10 @@ Admin settings panel for configuring site content and business details.
 
 The app is fully responsive — the same public site and admin dashboard adapt cleanly to mobile screens.
 
-<table>
-  <tr>
-    <td align="center"><img src="./screenshots/Mobile%20-%20Home%20Page.PNG" width="160"><br><sub>Home Page</sub></td>
-    <td align="center"><img src="./screenshots/Mobile%20-%20Dashboard%20-%20Customers.PNG" width="160"><br><sub>Customers</sub></td>
-    <td align="center"><img src="./screenshots/Mobile%20-%20Dashboard%20-%20Appointments.PNG" width="160"><br><sub>Appointments</sub></td>
-    <td align="center"><img src="./screenshots/Mobile%20-%20Dashboard%20-%20Insights.PNG" width="160"><br><sub>Insights</sub></td>
-    <td align="center"><img src="./screenshots/Mobile%20-%20Dashboard%20-%20Settings.PNG" width="160"><br><sub>Settings</sub></td>
-  </tr>
-</table>
+<p align="center">
+  <img src="./screenshots/Mobile%20-%20Home%20Page.PNG" width="180" alt="Mobile Home Page">
+  <img src="./screenshots/Mobile%20-%20Dashboard%20-%20Customers.PNG" width="180" alt="Mobile Dashboard Customers">
+  <img src="./screenshots/Mobile%20-%20Dashboard%20-%20Appointments.PNG" width="180" alt="Mobile Dashboard Appointments">
+  <img src="./screenshots/Mobile%20-%20Dashboard%20-%20Insights.PNG" width="180" alt="Mobile Dashboard Insights">
+  <img src="./screenshots/Mobile%20-%20Dashboard%20-%20Settings.PNG" width="180" alt="Mobile Dashboard Settings">
+</p>
