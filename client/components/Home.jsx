@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Link } from 'react-router';
-import { toast } from 'react-toastify';
 import axios from 'axios';
 import { motion, useMotionValue, animate } from 'framer-motion';
+import ClienticityLeadForm from './ClienticityLeadForm';
+import ClienticityCalendar from './ClienticityCalendar';
 
 const formatDate = (dt) => new Date(dt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -25,8 +26,6 @@ function ReviewAvatar({ r }) {
 }
 
 export default function Home() {
-    const [form, setForm] = useState({ name: '', email: '', message: '' });
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [posts, setPosts] = useState([]);
     const [reviews, setReviews] = useState(null);
     const [reviewIndex, setReviewIndex] = useState(0);
@@ -88,11 +87,6 @@ export default function Home() {
         }
     }, [paused, posts.length]);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm(prev => ({ ...prev, [name]: value }));
-    };
-
     const getStep = () => {
         const w = reviewTrackRef.current?.offsetWidth || 0;
         const gap = 24;
@@ -138,21 +132,6 @@ export default function Home() {
         window.addEventListener('resize', update);
         return () => window.removeEventListener('resize', update);
     }, []);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        try {
-            await axios.post('/api/contact', form);
-            window.umami?.track('contact-form-submitted');
-            toast.success('Message sent! We\'ll be in touch soon.');
-            setForm({ name: '', email: '', message: '' });
-        } catch {
-            toast.error('Failed to send message. Please try again.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
 
     return (
         <div className="home-page">
@@ -239,49 +218,15 @@ export default function Home() {
             <section className="home-contact">
                 <h2 className="home-section-title">Get in Touch</h2>
                 <p className="home-contact-sub">Have a question? Send us a message and we'll get back to you.</p>
-                <form className="home-contact-form" onSubmit={handleSubmit}>
-                    <div className="home-contact-row">
-                        <div className="home-contact-field">
-                            <label className="home-contact-label">Name</label>
-                            <input
-                                className="home-contact-input"
-                                type="text"
-                                name="name"
-                                value={form.name}
-                                onChange={handleChange}
-                                required
-                                placeholder="Your name"
-                            />
-                        </div>
-                        <div className="home-contact-field">
-                            <label className="home-contact-label">Email</label>
-                            <input
-                                className="home-contact-input"
-                                type="email"
-                                name="email"
-                                value={form.email}
-                                onChange={handleChange}
-                                required
-                                placeholder="your@email.com"
-                            />
-                        </div>
-                    </div>
-                    <div className="home-contact-field">
-                        <label className="home-contact-label">Message</label>
-                        <textarea
-                            className="home-contact-input home-contact-textarea"
-                            name="message"
-                            value={form.message}
-                            onChange={handleChange}
-                            required
-                            rows={4}
-                            placeholder="How can we help?"
-                        />
-                    </div>
-                    <button type="submit" className="home-contact-btn" disabled={isSubmitting}>
-                        {isSubmitting ? 'Sending…' : 'Send Message'}
-                    </button>
-                </form>
+                <div className="home-contact-form">
+                    <ClienticityLeadForm />
+                </div>
+            </section>
+
+            {/* Booking Calendar */}
+            <section className="home-calendar">
+                <h2 className="home-section-title home-calendar-title">Book Your Appointment</h2>
+                <ClienticityCalendar />
             </section>
         </div>
     );
